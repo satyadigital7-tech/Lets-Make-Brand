@@ -15,8 +15,9 @@
     "test:phase6": "node scripts/test-phase6.mjs",
     "test:phase7": "node scripts/test-phase7.mjs",
     "test:phase8": "node scripts/test-phase8.mjs",
+    "test:phase9": "node scripts/test-phase9.mjs",
     "verify:supabase": "node scripts/verify-supabase-connection.mjs",
-    "test": "node --experimental-strip-types scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node --experimental-strip-types scripts/test-phase3.mjs && node scripts/test-phase4.mjs && node scripts/test-phase5.mjs && node scripts/test-phase6.mjs && node scripts/test-phase7.mjs && node scripts/test-phase8.mjs"
+    "test": "node --experimental-strip-types scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node --experimental-strip-types scripts/test-phase3.mjs && node scripts/test-phase4.mjs && node scripts/test-phase5.mjs && node scripts/test-phase6.mjs && node scripts/test-phase7.mjs && node scripts/test-phase8.mjs && node scripts/test-phase9.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
