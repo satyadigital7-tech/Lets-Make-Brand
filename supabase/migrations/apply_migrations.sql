@@ -32,4 +32,10 @@ BEGIN;
 -- Part 9: Phase 4 Commission Row Level Security Policies
 \ir 00009_phase4_rls_policies.sql
 
+-- Part 10: Phase 5 Wallet & Financial Management Schema
+\ir 00010_phase5_wallet_and_payments.sql
+
+-- Part 11: Phase 5 Financial Row Level Security Policies
+\ir 00011_phase5_rls_policies.sql
+
 COMMIT;

@@ -68,6 +68,20 @@ export type TransactionType = "credit" | "debit" | "reversal" | "adjustment";
 export type CommissionStatus = "pending" | "approved" | "paid" | "reversed";
 export type BeneficiaryRole = "partner" | "vendor";
 
+export type WalletStatus = "active" | "frozen" | "suspended";
+export type PayoutMethodType = "upi" | "bank_transfer";
+export type WithdrawalMethod = "upi" | "bank_transfer" | "neft" | "imps";
+export type WithdrawalStatus = "pending" | "approved" | "processing" | "paid" | "rejected" | "cancelled";
+export type PaymentStatus = "completed" | "failed" | "refunded";
+export type WalletLedgerTransactionType =
+  | "commission_credit"
+  | "withdrawal_reservation"
+  | "withdrawal_release"
+  | "withdrawal_payment"
+  | "commission_reversal"
+  | "manual_adjustment";
+export type WalletLedgerDirection = "credit" | "debit";
+
 export interface DynamicFieldDef {
   id: string;
   label: string;
@@ -975,6 +989,279 @@ export interface Database {
           created_at?: string;
         };
       };
+      wallets: {
+        Row: {
+          id: string;
+          wallet_code: string;
+          user_id: string;
+          user_role: string;
+          total_earnings: number;
+          pending_earnings: number;
+          available_balance: number;
+          reserved_balance: number;
+          total_withdrawn: number;
+          currency: string;
+          status: WalletStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          wallet_code: string;
+          user_id: string;
+          user_role: string;
+          total_earnings?: number;
+          pending_earnings?: number;
+          available_balance?: number;
+          reserved_balance?: number;
+          total_withdrawn?: number;
+          currency?: string;
+          status?: WalletStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          wallet_code?: string;
+          user_id?: string;
+          user_role?: string;
+          total_earnings?: number;
+          pending_earnings?: number;
+          available_balance?: number;
+          reserved_balance?: number;
+          total_withdrawn?: number;
+          currency?: string;
+          status?: WalletStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      payout_methods: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: PayoutMethodType;
+          is_default: boolean;
+          upi_id: string | null;
+          account_holder_name: string;
+          account_number: string | null;
+          ifsc_code: string | null;
+          bank_name: string | null;
+          branch_name: string | null;
+          is_verified: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: PayoutMethodType;
+          is_default?: boolean;
+          upi_id?: string | null;
+          account_holder_name: string;
+          account_number?: string | null;
+          ifsc_code?: string | null;
+          bank_name?: string | null;
+          branch_name?: string | null;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: PayoutMethodType;
+          is_default?: boolean;
+          upi_id?: string | null;
+          account_holder_name?: string;
+          account_number?: string | null;
+          ifsc_code?: string | null;
+          bank_name?: string | null;
+          branch_name?: string | null;
+          is_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      withdrawals: {
+        Row: {
+          id: string;
+          withdrawal_code: string;
+          wallet_id: string;
+          user_id: string;
+          amount: number;
+          payment_method: WithdrawalMethod;
+          payout_details: Json;
+          status: WithdrawalStatus;
+          rejection_reason: string | null;
+          admin_remarks: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          withdrawal_code: string;
+          wallet_id: string;
+          user_id: string;
+          amount: number;
+          payment_method: WithdrawalMethod;
+          payout_details: Json;
+          status?: WithdrawalStatus;
+          rejection_reason?: string | null;
+          admin_remarks?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          withdrawal_code?: string;
+          wallet_id?: string;
+          user_id?: string;
+          amount?: number;
+          payment_method?: WithdrawalMethod;
+          payout_details?: Json;
+          status?: WithdrawalStatus;
+          rejection_reason?: string | null;
+          admin_remarks?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      payments: {
+        Row: {
+          id: string;
+          payment_code: string;
+          withdrawal_id: string;
+          user_id: string;
+          amount: number;
+          payment_method: string;
+          payment_reference: string;
+          payment_date: string;
+          status: PaymentStatus;
+          proof_url: string | null;
+          admin_remarks: string | null;
+          processed_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          payment_code: string;
+          withdrawal_id: string;
+          user_id: string;
+          amount: number;
+          payment_method: string;
+          payment_reference: string;
+          payment_date?: string;
+          status?: PaymentStatus;
+          proof_url?: string | null;
+          admin_remarks?: string | null;
+          processed_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          payment_code?: string;
+          withdrawal_id?: string;
+          user_id?: string;
+          amount?: number;
+          payment_method?: string;
+          payment_reference?: string;
+          payment_date?: string;
+          status?: PaymentStatus;
+          proof_url?: string | null;
+          admin_remarks?: string | null;
+          processed_by?: string;
+          created_at?: string;
+        };
+      };
+      wallet_ledger: {
+        Row: {
+          id: string;
+          ledger_code: string;
+          wallet_id: string;
+          user_id: string;
+          transaction_type: WalletLedgerTransactionType;
+          amount: number;
+          direction: WalletLedgerDirection;
+          balance_before: number;
+          balance_after: number;
+          reference_id: string;
+          description: string | null;
+          processed_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ledger_code: string;
+          wallet_id: string;
+          user_id: string;
+          transaction_type: WalletLedgerTransactionType;
+          amount: number;
+          direction: WalletLedgerDirection;
+          balance_before: number;
+          balance_after: number;
+          reference_id: string;
+          description?: string | null;
+          processed_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          ledger_code?: string;
+          wallet_id?: string;
+          user_id?: string;
+          transaction_type?: WalletLedgerTransactionType;
+          amount?: number;
+          direction?: WalletLedgerDirection;
+          balance_before?: number;
+          balance_after?: number;
+          reference_id?: string;
+          description?: string | null;
+          processed_by?: string | null;
+          created_at?: string;
+        };
+      };
+      financial_audit_logs: {
+        Row: {
+          id: string;
+          wallet_id: string | null;
+          withdrawal_id: string | null;
+          payment_id: string | null;
+          actor_id: string | null;
+          action: string;
+          amount: number | null;
+          details: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          wallet_id?: string | null;
+          withdrawal_id?: string | null;
+          payment_id?: string | null;
+          actor_id?: string | null;
+          action: string;
+          amount?: number | null;
+          details?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          wallet_id?: string | null;
+          withdrawal_id?: string | null;
+          payment_id?: string | null;
+          actor_id?: string | null;
+          action?: string;
+          amount?: number | null;
+          details?: Json;
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -985,4 +1272,12 @@ export type VendorCommissionSplit = Database["public"]["Tables"]["vendor_commiss
 export type CommissionTransaction = Database["public"]["Tables"]["commission_transactions"]["Row"];
 export type CommissionReversal = Database["public"]["Tables"]["commission_reversals"]["Row"];
 export type CommissionAuditLog = Database["public"]["Tables"]["commission_audit_logs"]["Row"];
+
+export type Wallet = Database["public"]["Tables"]["wallets"]["Row"];
+export type PayoutMethod = Database["public"]["Tables"]["payout_methods"]["Row"];
+export type Withdrawal = Database["public"]["Tables"]["withdrawals"]["Row"];
+export type Payment = Database["public"]["Tables"]["payments"]["Row"];
+export type WalletLedgerItem = Database["public"]["Tables"]["wallet_ledger"]["Row"];
+export type FinancialAuditLog = Database["public"]["Tables"]["financial_audit_logs"]["Row"];
+
 

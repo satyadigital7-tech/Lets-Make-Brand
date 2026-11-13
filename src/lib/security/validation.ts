@@ -295,3 +295,75 @@ export const commissionReversalSchema = z.object({
 
 export type CommissionReversalFormData = z.infer<typeof commissionReversalSchema>;
 
+// ==============================================================================
+// PHASE 5: WALLET AND PAYMENT MANAGEMENT SCHEMAS
+// ==============================================================================
+
+// MODULE 4: PAYOUT METHOD SCHEMA
+export const payoutMethodSchema = z.object({
+  type: z.enum(["upi", "bank_transfer"]),
+  accountHolderName: z.string().min(2, "Account holder name must be at least 2 characters").max(100).trim(),
+  upiId: z.string().max(100).trim().optional().or(z.literal("")),
+  accountNumber: z.string().max(50).trim().optional().or(z.literal("")),
+  ifscCode: z.string().max(20).trim().optional().or(z.literal("")),
+  bankName: z.string().max(100).trim().optional().or(z.literal("")),
+  branchName: z.string().max(100).trim().optional().or(z.literal("")),
+  isDefault: z.boolean().default(true),
+}).refine(
+  (data) => {
+    if (data.type === "upi") {
+      return !!data.upiId && data.upiId.includes("@");
+    }
+    if (data.type === "bank_transfer") {
+      return !!data.accountNumber && data.accountNumber.length >= 6 && !!data.ifscCode;
+    }
+    return true;
+  },
+  {
+    message: "Valid payout credentials are required for the chosen payment method",
+    path: ["upiId"],
+  }
+);
+
+export type PayoutMethodFormData = z.infer<typeof payoutMethodSchema>;
+
+// MODULE 4: WITHDRAWAL REQUEST SCHEMA
+export const withdrawalRequestSchema = z.object({
+  amount: z.number().min(100, "Minimum withdrawal amount is ₹100"),
+  paymentMethod: z.enum(["upi", "bank_transfer", "neft", "imps"]),
+  payoutDetails: z.object({
+    accountHolderName: z.string().min(2, "Account holder name is required").trim(),
+    upiId: z.string().optional(),
+    accountNumber: z.string().optional(),
+    ifscCode: z.string().optional(),
+    bankName: z.string().optional(),
+  }),
+  confirmation: z.boolean().refine((val) => val === true, {
+    message: "Confirmation of payout details and terms is mandatory",
+  }),
+});
+
+export type WithdrawalRequestFormData = z.infer<typeof withdrawalRequestSchema>;
+
+// MODULE 5: WITHDRAWAL REVIEW SCHEMA
+export const withdrawalReviewSchema = z.object({
+  withdrawalId: z.string().uuid("Invalid Withdrawal ID"),
+  action: z.enum(["approve", "mark_processing", "reject"]),
+  reason: z.string().max(500).optional(),
+});
+
+export type WithdrawalReviewFormData = z.infer<typeof withdrawalReviewSchema>;
+
+// MODULE 7: MANUAL PAYMENT SCHEMA
+export const manualPaymentSchema = z.object({
+  withdrawalId: z.string().uuid("Invalid Withdrawal ID"),
+  paymentReference: z.string().min(3, "Payment Reference / UTR Number is required").max(100).trim(),
+  paymentMethod: z.string().min(2, "Payment method is required").max(50).trim(),
+  paymentDate: z.string().optional(),
+  adminRemarks: z.string().max(500).optional(),
+  proofUrl: z.string().url("Valid proof URL is required").optional().or(z.literal("")),
+});
+
+export type ManualPaymentFormData = z.infer<typeof manualPaymentSchema>;
+
+
