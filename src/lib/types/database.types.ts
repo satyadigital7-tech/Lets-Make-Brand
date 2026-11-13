@@ -54,6 +54,10 @@ export type LeadStatus =
   | "duplicate";
 
 export type NotificationType =
+  | "registration_received"
+  | "account_approved"
+  | "account_rejected"
+  | "new_campaign"
   | "campaign_assignment"
   | "campaign_published"
   | "lead_submitted"
@@ -62,7 +66,69 @@ export type NotificationType =
   | "correction_requested"
   | "duplicate_detected"
   | "commission_credited"
-  | "commission_reversed";
+  | "commission_reversed"
+  | "withdrawal_submitted"
+  | "withdrawal_approved"
+  | "withdrawal_paid"
+  | "kyc_updated"
+  | "support_reply"
+  | string;
+
+export type KycStatus =
+  | "not_submitted"
+  | "pending"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "resubmission_required";
+
+export type KycDocumentType =
+  | "pan_card"
+  | "address_proof"
+  | "bank_proof"
+  | "business_reg"
+  | "other";
+
+export type DocumentTemplateType =
+  | "id_card_partner"
+  | "id_card_vendor"
+  | "offer_letter_partner"
+  | "offer_letter_vendor";
+
+export type GeneratedDocumentType = "id_card" | "offer_letter";
+
+export type SupportTicketCategory =
+  | "account_issues"
+  | "registration"
+  | "kyc"
+  | "campaign"
+  | "lead_submission"
+  | "commission"
+  | "wallet"
+  | "withdrawal"
+  | "payment"
+  | "technical_support"
+  | "other";
+
+export type SupportTicketPriority = "low" | "medium" | "high" | "urgent";
+
+export type SupportTicketStatus =
+  | "open"
+  | "in_progress"
+  | "waiting_user"
+  | "resolved"
+  | "closed";
+
+export type ReportType =
+  | "users"
+  | "campaigns"
+  | "leads"
+  | "financial"
+  | "kyc"
+  | "support"
+  | "audit";
+
+export type ReportExportFormat = "csv" | "pdf";
 
 export type TransactionType = "credit" | "debit" | "reversal" | "adjustment";
 export type CommissionStatus = "pending" | "approved" | "paid" | "reversed";
@@ -118,6 +184,7 @@ export interface Database {
           associated_vendor_id: string | null;
           vendor_id_code: string | null;
           partner_id_code: string | null;
+          profile_code?: string | null;
           rejection_reason: string | null;
           suspension_reason: string | null;
           status: AccountStatus;
@@ -755,9 +822,12 @@ export interface Database {
           title: string;
           message: string;
           type: NotificationType;
+          category: string;
           entity_type: string | null;
           entity_id: string | null;
+          action_url: string | null;
           is_read: boolean;
+          read_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -766,9 +836,12 @@ export interface Database {
           title: string;
           message: string;
           type: NotificationType;
+          category?: string;
           entity_type?: string | null;
           entity_id?: string | null;
+          action_url?: string | null;
           is_read?: boolean;
+          read_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -777,9 +850,12 @@ export interface Database {
           title?: string;
           message?: string;
           type?: NotificationType;
+          category?: string;
           entity_type?: string | null;
           entity_id?: string | null;
+          action_url?: string | null;
           is_read?: boolean;
+          read_at?: string | null;
           created_at?: string;
         };
       };
@@ -1262,6 +1338,405 @@ export interface Database {
           created_at?: string;
         };
       };
+      kyc_records: {
+        Row: {
+          id: string;
+          kyc_code: string;
+          user_id: string;
+          user_role: string;
+          full_name: string;
+          date_of_birth: string;
+          address: string;
+          pan_number_masked: string;
+          bank_account_holder: string;
+          bank_account_number_masked: string;
+          ifsc_code: string;
+          bank_name: string | null;
+          upi_id: string | null;
+          status: KycStatus;
+          rejection_reason: string | null;
+          admin_remarks: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          submitted_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kyc_code?: string;
+          user_id: string;
+          user_role: string;
+          full_name: string;
+          date_of_birth: string;
+          address: string;
+          pan_number_masked: string;
+          bank_account_holder: string;
+          bank_account_number_masked: string;
+          ifsc_code: string;
+          bank_name?: string | null;
+          upi_id?: string | null;
+          status?: KycStatus;
+          rejection_reason?: string | null;
+          admin_remarks?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          submitted_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          kyc_code?: string;
+          user_id?: string;
+          user_role?: string;
+          full_name?: string;
+          date_of_birth?: string;
+          address?: string;
+          pan_number_masked?: string;
+          bank_account_holder?: string;
+          bank_account_number_masked?: string;
+          ifsc_code?: string;
+          bank_name?: string | null;
+          upi_id?: string | null;
+          status?: KycStatus;
+          rejection_reason?: string | null;
+          admin_remarks?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          submitted_at?: string;
+          updated_at?: string;
+        };
+      };
+      kyc_documents: {
+        Row: {
+          id: string;
+          kyc_id: string;
+          user_id: string;
+          document_type: KycDocumentType;
+          document_name: string;
+          file_path: string;
+          file_size: number | null;
+          mime_type: string | null;
+          is_verified: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          kyc_id: string;
+          user_id: string;
+          document_type: KycDocumentType;
+          document_name: string;
+          file_path: string;
+          file_size?: number | null;
+          mime_type?: string | null;
+          is_verified?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          kyc_id?: string;
+          user_id?: string;
+          document_type?: KycDocumentType;
+          document_name?: string;
+          file_path?: string;
+          file_size?: number | null;
+          mime_type?: string | null;
+          is_verified?: boolean;
+          created_at?: string;
+        };
+      };
+      document_templates: {
+        Row: {
+          id: string;
+          template_type: DocumentTemplateType;
+          title: string;
+          company_name: string;
+          company_address: string;
+          company_website: string;
+          company_logo_url: string | null;
+          signatory_name: string;
+          signatory_title: string;
+          signatory_signature_url: string | null;
+          terms_content: string | null;
+          commission_policy_ref: string | null;
+          responsibilities: string | null;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          template_type: DocumentTemplateType;
+          title: string;
+          company_name?: string;
+          company_address?: string;
+          company_website?: string;
+          company_logo_url?: string | null;
+          signatory_name?: string;
+          signatory_title?: string;
+          signatory_signature_url?: string | null;
+          terms_content?: string | null;
+          commission_policy_ref?: string | null;
+          responsibilities?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          template_type?: DocumentTemplateType;
+          title?: string;
+          company_name?: string;
+          company_address?: string;
+          company_website?: string;
+          company_logo_url?: string | null;
+          signatory_name?: string;
+          signatory_title?: string;
+          signatory_signature_url?: string | null;
+          terms_content?: string | null;
+          commission_policy_ref?: string | null;
+          responsibilities?: string | null;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      generated_documents: {
+        Row: {
+          id: string;
+          doc_code: string;
+          user_id: string;
+          document_type: GeneratedDocumentType;
+          title: string;
+          verification_reference: string;
+          file_path: string | null;
+          file_size: number | null;
+          metadata: Json;
+          issue_date: string;
+          is_valid: boolean;
+          generated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          doc_code?: string;
+          user_id: string;
+          document_type: GeneratedDocumentType;
+          title: string;
+          verification_reference: string;
+          file_path?: string | null;
+          file_size?: number | null;
+          metadata?: Json;
+          issue_date?: string;
+          is_valid?: boolean;
+          generated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          doc_code?: string;
+          user_id?: string;
+          document_type?: GeneratedDocumentType;
+          title?: string;
+          verification_reference?: string;
+          file_path?: string | null;
+          file_size?: number | null;
+          metadata?: Json;
+          issue_date?: string;
+          is_valid?: boolean;
+          generated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      notification_preferences: {
+        Row: {
+          id: string;
+          user_id: string;
+          email_account_updates: boolean;
+          email_campaign_updates: boolean;
+          email_lead_updates: boolean;
+          email_financial_updates: boolean;
+          email_support_updates: boolean;
+          inapp_all: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          email_account_updates?: boolean;
+          email_campaign_updates?: boolean;
+          email_lead_updates?: boolean;
+          email_financial_updates?: boolean;
+          email_support_updates?: boolean;
+          inapp_all?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          email_account_updates?: boolean;
+          email_campaign_updates?: boolean;
+          email_lead_updates?: boolean;
+          email_financial_updates?: boolean;
+          email_support_updates?: boolean;
+          inapp_all?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      support_tickets: {
+        Row: {
+          id: string;
+          ticket_code: string;
+          user_id: string;
+          user_role: string;
+          subject: string;
+          category: SupportTicketCategory;
+          description: string;
+          priority: SupportTicketPriority;
+          status: SupportTicketStatus;
+          assigned_to: string | null;
+          resolved_at: string | null;
+          closed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_code?: string;
+          user_id: string;
+          user_role: string;
+          subject: string;
+          category: SupportTicketCategory;
+          description: string;
+          priority?: SupportTicketPriority;
+          status?: SupportTicketStatus;
+          assigned_to?: string | null;
+          resolved_at?: string | null;
+          closed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          ticket_code?: string;
+          user_id?: string;
+          user_role?: string;
+          subject?: string;
+          category?: SupportTicketCategory;
+          description?: string;
+          priority?: SupportTicketPriority;
+          status?: SupportTicketStatus;
+          assigned_to?: string | null;
+          resolved_at?: string | null;
+          closed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      support_messages: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          sender_id: string;
+          sender_role: string;
+          message: string;
+          is_staff_reply: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_id: string;
+          sender_id: string;
+          sender_role: string;
+          message: string;
+          is_staff_reply?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          ticket_id?: string;
+          sender_id?: string;
+          sender_role?: string;
+          message?: string;
+          is_staff_reply?: boolean;
+          created_at?: string;
+        };
+      };
+      support_attachments: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          message_id: string | null;
+          file_name: string;
+          file_path: string;
+          file_size: number | null;
+          mime_type: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_id: string;
+          message_id?: string | null;
+          file_name: string;
+          file_path: string;
+          file_size?: number | null;
+          mime_type?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          ticket_id?: string;
+          message_id?: string | null;
+          file_name?: string;
+          file_path?: string;
+          file_size?: number | null;
+          mime_type?: string | null;
+          created_at?: string;
+        };
+      };
+      report_exports: {
+        Row: {
+          id: string;
+          export_code: string;
+          user_id: string;
+          report_type: ReportType;
+          export_format: ReportExportFormat;
+          filters: Json;
+          file_path: string | null;
+          row_count: number;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          export_code?: string;
+          user_id: string;
+          report_type: ReportType;
+          export_format: ReportExportFormat;
+          filters?: Json;
+          file_path?: string | null;
+          row_count?: number;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          export_code?: string;
+          user_id?: string;
+          report_type?: ReportType;
+          export_format?: ReportExportFormat;
+          filters?: Json;
+          file_path?: string | null;
+          row_count?: number;
+          status?: string;
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -1279,5 +1754,16 @@ export type Withdrawal = Database["public"]["Tables"]["withdrawals"]["Row"];
 export type Payment = Database["public"]["Tables"]["payments"]["Row"];
 export type WalletLedgerItem = Database["public"]["Tables"]["wallet_ledger"]["Row"];
 export type FinancialAuditLog = Database["public"]["Tables"]["financial_audit_logs"]["Row"];
+
+export type KycRecord = Database["public"]["Tables"]["kyc_records"]["Row"];
+export type KycDocument = Database["public"]["Tables"]["kyc_documents"]["Row"];
+export type DocumentTemplate = Database["public"]["Tables"]["document_templates"]["Row"];
+export type GeneratedDocument = Database["public"]["Tables"]["generated_documents"]["Row"];
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+export type NotificationPreference = Database["public"]["Tables"]["notification_preferences"]["Row"];
+export type SupportTicket = Database["public"]["Tables"]["support_tickets"]["Row"];
+export type SupportMessage = Database["public"]["Tables"]["support_messages"]["Row"];
+export type SupportAttachment = Database["public"]["Tables"]["support_attachments"]["Row"];
+export type ReportExport = Database["public"]["Tables"]["report_exports"]["Row"];
 
 

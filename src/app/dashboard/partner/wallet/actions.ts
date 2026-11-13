@@ -147,3 +147,4 @@ export async function savePayoutMethodAction(data: PayoutMethodFormData) {
 
   return { success: true, id: inserted.id };
 }
+

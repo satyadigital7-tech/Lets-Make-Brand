@@ -366,4 +366,135 @@ export const manualPaymentSchema = z.object({
 
 export type ManualPaymentFormData = z.infer<typeof manualPaymentSchema>;
 
+// ==============================================================================
+// PHASE 6: KYC, DOCUMENTS, NOTIFICATIONS, SUPPORT & REPORTS SCHEMAS
+// ==============================================================================
+
+// MODULE 1: KYC SUBMISSION SCHEMA
+export const kycSubmissionSchema = z.object({
+  fullName: z.string().min(2, "Full legal name must be at least 2 characters").max(100).trim(),
+  dateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Valid Date of Birth is required",
+  }),
+  address: z.string().min(5, "Complete residential/business address is required").max(300).trim(),
+  panNumber: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Please provide a valid 10-character PAN number (e.g. ABCDE1234F)"),
+  bankAccountHolder: z.string().min(2, "Bank account holder name is required").max(100).trim(),
+  bankAccountNumber: z.string().min(6, "Valid account number required").max(30).trim(),
+  ifscCode: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Please provide a valid 11-character Indian IFSC code (e.g. HDFC0001234)"),
+  bankName: z.string().max(100).optional().or(z.literal("")),
+  upiId: z.string().max(100).optional().or(z.literal("")),
+  documents: z
+    .array(
+      z.object({
+        documentType: z.enum(["pan_card", "address_proof", "bank_proof", "business_reg", "other"]),
+        documentName: z.string().min(1, "Document file name is required"),
+        filePath: z.string().min(1, "Document storage path is required"),
+        fileSize: z.number().optional(),
+        mimeType: z.string().optional(),
+      })
+    )
+    .min(1, "At least one supporting KYC verification document (PAN or Address proof) is required"),
+});
+
+export type KycSubmissionFormData = z.infer<typeof kycSubmissionSchema>;
+
+// MODULE 1: KYC REVIEW SCHEMA
+export const kycReviewSchema = z.object({
+  kycId: z.string().uuid("Invalid KYC ID"),
+  action: z.enum(["approve", "reject", "request_correction"]),
+  reason: z.string().max(500).optional(),
+  adminRemarks: z.string().max(500).optional(),
+});
+
+export type KycReviewFormData = z.infer<typeof kycReviewSchema>;
+
+// MODULE 3: DOCUMENT TEMPLATE SCHEMA
+export const documentTemplateSchema = z.object({
+  templateType: z.enum(["id_card_partner", "id_card_vendor", "offer_letter_partner", "offer_letter_vendor"]),
+  title: z.string().min(3, "Template title is required").max(100),
+  companyName: z.string().min(2, "Company name is required").max(100),
+  companyAddress: z.string().min(5, "Company address is required").max(300),
+  companyWebsite: z.string().url("Valid company website URL is required"),
+  companyLogoUrl: z.string().url("Valid logo URL required").optional().or(z.literal("")),
+  signatoryName: z.string().min(2, "Signatory name is required").max(100),
+  signatoryTitle: z.string().min(2, "Signatory designation is required").max(100),
+  signatorySignatureUrl: z.string().url("Valid signature URL required").optional().or(z.literal("")),
+  termsContent: z.string().max(5000).optional(),
+  commissionPolicyRef: z.string().max(2000).optional(),
+  responsibilities: z.string().max(3000).optional(),
+});
+
+export type DocumentTemplateFormData = z.infer<typeof documentTemplateSchema>;
+
+// MODULE 5: SUPPORT TICKET CREATE SCHEMA
+export const supportTicketCreateSchema = z.object({
+  subject: z.string().min(3, "Subject must be at least 3 characters").max(200).trim(),
+  category: z.enum([
+    "account_issues",
+    "registration",
+    "kyc",
+    "campaign",
+    "lead_submission",
+    "commission",
+    "wallet",
+    "withdrawal",
+    "payment",
+    "technical_support",
+    "other",
+  ]),
+  description: z.string().min(10, "Please provide a detailed description (at least 10 characters)").max(3000).trim(),
+  priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
+  attachments: z
+    .array(
+      z.object({
+        fileName: z.string(),
+        filePath: z.string(),
+        fileSize: z.number().optional(),
+        mimeType: z.string().optional(),
+      })
+    )
+    .optional()
+    .default([]),
+});
+
+export type SupportTicketCreateFormData = z.infer<typeof supportTicketCreateSchema>;
+
+// MODULE 5: SUPPORT MESSAGE SCHEMA
+export const supportMessageSchema = z.object({
+  ticketId: z.string().uuid("Invalid Ticket ID"),
+  message: z.string().min(1, "Message content cannot be empty").max(3000).trim(),
+});
+
+export type SupportMessageFormData = z.infer<typeof supportMessageSchema>;
+
+// MODULE 5: SUPPORT TICKET UPDATE SCHEMA
+export const supportTicketUpdateSchema = z.object({
+  ticketId: z.string().uuid("Invalid Ticket ID"),
+  status: z.enum(["open", "in_progress", "waiting_user", "resolved", "closed"]).optional(),
+  priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+  assignedTo: z.string().uuid("Invalid Assignee ID").optional().or(z.literal("")),
+});
+
+export type SupportTicketUpdateFormData = z.infer<typeof supportTicketUpdateSchema>;
+
+// MODULE 6: REPORT EXPORT FILTER SCHEMA
+export const reportFilterSchema = z.object({
+  reportType: z.enum(["users", "campaigns", "leads", "financial", "kyc", "support", "audit"]),
+  startDate: z.string().optional().or(z.literal("")),
+  endDate: z.string().optional().or(z.literal("")),
+  status: z.string().optional().or(z.literal("")),
+  format: z.enum(["csv", "pdf"]).default("csv"),
+});
+
+export type ReportFilterFormData = z.infer<typeof reportFilterSchema>;
+
+
 

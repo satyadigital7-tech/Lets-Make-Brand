@@ -512,3 +512,4 @@ export function VendorWalletView({
     </div>
   );
 }
+

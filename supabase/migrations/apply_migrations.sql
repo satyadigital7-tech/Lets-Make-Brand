@@ -38,4 +38,13 @@ BEGIN;
 -- Part 11: Phase 5 Financial Row Level Security Policies
 \ir 00011_phase5_rls_policies.sql
 
+-- Part 12: Phase 6 KYC Management & Generated Documents
+\ir 00012_phase6_kyc_and_documents.sql
+
+-- Part 13: Phase 6 Notifications, Support Tickets & Reports
+\ir 00013_phase6_notifications_support_reports.sql
+
+-- Part 14: Phase 6 Row Level Security Policies
+\ir 00014_phase6_rls_policies.sql
+
 COMMIT;

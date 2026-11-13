@@ -96,3 +96,4 @@ DROP POLICY IF EXISTS "Super Admin and Admins view financial_audit_logs" ON publ
 CREATE POLICY "Super Admin and Admins view financial_audit_logs"
     ON public.financial_audit_logs FOR SELECT
     USING (public.is_admin_or_super());
+

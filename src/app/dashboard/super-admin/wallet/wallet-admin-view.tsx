@@ -633,3 +633,4 @@ export function WalletAdminView({ withdrawals, summary }: WalletAdminViewProps) 
     </div>
   );
 }
+

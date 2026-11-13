@@ -21,6 +21,7 @@ export interface UserProfile {
   associated_vendor_id: string | null;
   vendor_id_code: string | null;
   partner_id_code: string | null;
+  profile_code?: string | null;
   rejection_reason: string | null;
   suspension_reason: string | null;
   status: AccountStatus;

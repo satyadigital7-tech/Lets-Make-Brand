@@ -12,15 +12,19 @@
     "test:phase3": "node --experimental-strip-types scripts/test-phase3.mjs",
     "test:phase4": "node scripts/test-phase4.mjs",
     "test:phase5": "node scripts/test-phase5.mjs",
-    "test": "node --experimental-strip-types scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node --experimental-strip-types scripts/test-phase3.mjs && node scripts/test-phase4.mjs && node scripts/test-phase5.mjs"
+    "test:phase6": "node scripts/test-phase6.mjs",
+    "test": "node --experimental-strip-types scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node --experimental-strip-types scripts/test-phase3.mjs && node scripts/test-phase4.mjs && node scripts/test-phase5.mjs && node scripts/test-phase6.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
+    "@types/qrcode": "^1.5.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.72.0",
     "next": "16.4.6",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0",
