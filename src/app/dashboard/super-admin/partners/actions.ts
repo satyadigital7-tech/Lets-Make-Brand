@@ -197,3 +197,4 @@ export async function deactivatePartnerAction(partnerUserId: string) {
   revalidatePath("/dashboard/super-admin/partners");
   return { success: true };
 }
+

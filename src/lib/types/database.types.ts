@@ -35,7 +35,41 @@ export type CampaignStatus =
   | "pending_approval"
   | "active"
   | "paused"
-  | "completed";
+  | "completed"
+  | "archived";
+
+export type AssignmentType =
+  | "all_partners"
+  | "partner"
+  | "vendor"
+  | "team"
+  | "team_member";
+
+export type LeadStatus =
+  | "pending"
+  | "under_verification"
+  | "approved"
+  | "rejected"
+  | "correction_requested"
+  | "duplicate";
+
+export type NotificationType =
+  | "campaign_assignment"
+  | "campaign_published"
+  | "lead_submitted"
+  | "lead_approved"
+  | "lead_rejected"
+  | "correction_requested"
+  | "duplicate_detected";
+
+export interface DynamicFieldDef {
+  id: string;
+  label: string;
+  type: "text" | "number" | "select" | "file" | "textarea" | "date" | "boolean";
+  required: boolean;
+  options?: string[];
+  placeholder?: string;
+}
 
 export type CommissionType = "percentage" | "fixed";
 
@@ -415,13 +449,21 @@ export interface Database {
       campaigns: {
         Row: {
           id: string;
+          campaign_code: string | null;
           title: string;
+          brand_name: string | null;
           slug: string;
           vendor_id: string | null;
           description: string;
+          instructions: string | null;
+          eligibility: string | null;
+          required_documents: Json;
+          dynamic_fields: Json;
           category: string;
           target_audience: string | null;
           commission_rate: number;
+          commission_amount: number;
+          max_payout: number | null;
           commission_type: CommissionType;
           budget: number;
           status: CampaignStatus;
@@ -433,13 +475,21 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          campaign_code?: string | null;
           title: string;
+          brand_name?: string | null;
           slug: string;
           vendor_id?: string | null;
           description: string;
-          category: string;
+          instructions?: string | null;
+          eligibility?: string | null;
+          required_documents?: Json;
+          dynamic_fields?: Json;
+          category?: string;
           target_audience?: string | null;
           commission_rate?: number;
+          commission_amount?: number;
+          max_payout?: number | null;
           commission_type?: CommissionType;
           budget?: number;
           status?: CampaignStatus;
@@ -451,13 +501,21 @@ export interface Database {
         };
         Update: {
           id?: string;
+          campaign_code?: string | null;
           title?: string;
+          brand_name?: string | null;
           slug?: string;
           vendor_id?: string | null;
           description?: string;
+          instructions?: string | null;
+          eligibility?: string | null;
+          required_documents?: Json;
+          dynamic_fields?: Json;
           category?: string;
           target_audience?: string | null;
           commission_rate?: number;
+          commission_amount?: number;
+          max_payout?: number | null;
           commission_type?: CommissionType;
           budget?: number;
           status?: CampaignStatus;
@@ -466,6 +524,243 @@ export interface Database {
           end_date?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      campaign_assignments: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          assigned_type: AssignmentType;
+          partner_id: string | null;
+          vendor_id: string | null;
+          team_id: string | null;
+          team_member_id: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          assigned_type: AssignmentType;
+          partner_id?: string | null;
+          vendor_id?: string | null;
+          team_id?: string | null;
+          team_member_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          assigned_type?: AssignmentType;
+          partner_id?: string | null;
+          vendor_id?: string | null;
+          team_id?: string | null;
+          team_member_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+      };
+      leads: {
+        Row: {
+          id: string;
+          lead_code: string;
+          campaign_id: string;
+          submitted_by: string;
+          vendor_id: string | null;
+          team_id: string | null;
+          customer_name: string;
+          customer_mobile: string;
+          customer_email: string;
+          customer_location: string | null;
+          address: string | null;
+          additional_fields: Json;
+          status: LeadStatus;
+          rejection_reason: string | null;
+          correction_notes: string | null;
+          commission_amount: number;
+          is_duplicate: boolean;
+          duplicate_of_lead_id: string | null;
+          consent_confirmed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_code: string;
+          campaign_id: string;
+          submitted_by: string;
+          vendor_id?: string | null;
+          team_id?: string | null;
+          customer_name: string;
+          customer_mobile: string;
+          customer_email: string;
+          customer_location?: string | null;
+          address?: string | null;
+          additional_fields?: Json;
+          status?: LeadStatus;
+          rejection_reason?: string | null;
+          correction_notes?: string | null;
+          commission_amount?: number;
+          is_duplicate?: boolean;
+          duplicate_of_lead_id?: string | null;
+          consent_confirmed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_code?: string;
+          campaign_id?: string;
+          submitted_by?: string;
+          vendor_id?: string | null;
+          team_id?: string | null;
+          customer_name?: string;
+          customer_mobile?: string;
+          customer_email?: string;
+          customer_location?: string | null;
+          address?: string | null;
+          additional_fields?: Json;
+          status?: LeadStatus;
+          rejection_reason?: string | null;
+          correction_notes?: string | null;
+          commission_amount?: number;
+          is_duplicate?: boolean;
+          duplicate_of_lead_id?: string | null;
+          consent_confirmed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      lead_documents: {
+        Row: {
+          id: string;
+          lead_id: string;
+          document_name: string;
+          document_type: string | null;
+          file_url: string;
+          file_size: number | null;
+          uploaded_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          document_name: string;
+          document_type?: string | null;
+          file_url: string;
+          file_size?: number | null;
+          uploaded_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          document_name?: string;
+          document_type?: string | null;
+          file_url?: string;
+          file_size?: number | null;
+          uploaded_at?: string;
+        };
+      };
+      lead_status_history: {
+        Row: {
+          id: string;
+          lead_id: string;
+          actor_id: string;
+          action: string;
+          previous_status: string | null;
+          new_status: string;
+          comments: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          actor_id: string;
+          action: string;
+          previous_status?: string | null;
+          new_status: string;
+          comments?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          actor_id?: string;
+          action?: string;
+          previous_status?: string | null;
+          new_status?: string;
+          comments?: string | null;
+          created_at?: string;
+        };
+      };
+      lead_duplicate_checks: {
+        Row: {
+          id: string;
+          lead_id: string;
+          campaign_id: string;
+          normalized_mobile: string;
+          normalized_email: string;
+          match_type: string;
+          matched_existing_lead_id: string | null;
+          is_duplicate: boolean;
+          checked_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          campaign_id: string;
+          normalized_mobile: string;
+          normalized_email: string;
+          match_type: string;
+          matched_existing_lead_id?: string | null;
+          is_duplicate?: boolean;
+          checked_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          campaign_id?: string;
+          normalized_mobile?: string;
+          normalized_email?: string;
+          match_type?: string;
+          matched_existing_lead_id?: string | null;
+          is_duplicate?: boolean;
+          checked_at?: string;
+        };
+      };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          message: string;
+          type: NotificationType;
+          entity_type: string | null;
+          entity_id: string | null;
+          is_read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          message: string;
+          type: NotificationType;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          message?: string;
+          type?: NotificationType;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          is_read?: boolean;
+          created_at?: string;
         };
       };
     };

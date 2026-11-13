@@ -187,3 +187,4 @@ export default async function InvitationPage({ params }: InvitePageProps) {
     </div>
   );
 }
+

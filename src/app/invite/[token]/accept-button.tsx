@@ -55,3 +55,4 @@ export function InvitationAcceptButton({ token, role }: InvitationAcceptButtonPr
     </div>
   );
 }
+

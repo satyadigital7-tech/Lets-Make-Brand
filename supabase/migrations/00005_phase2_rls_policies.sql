@@ -98,3 +98,4 @@ DROP POLICY IF EXISTS "Anyone can verify invitation with valid token" ON public.
 CREATE POLICY "Anyone can verify invitation with valid token"
     ON public.invitations FOR SELECT
     USING (status = 'pending' AND expires_at > NOW());
+

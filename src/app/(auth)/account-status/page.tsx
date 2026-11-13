@@ -79,3 +79,4 @@ export default async function AccountStatusPage({ searchParams }: AccountStatusP
     </Card>
   );
 }
+

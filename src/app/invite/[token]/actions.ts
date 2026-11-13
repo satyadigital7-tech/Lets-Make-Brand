@@ -139,3 +139,4 @@ export async function acceptInvitationAction(token: string) {
     redirectPath: invitation.role === "team_leader" ? "/dashboard/team-leader" : "/dashboard/partner",
   };
 }
+

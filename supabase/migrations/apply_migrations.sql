@@ -20,4 +20,10 @@ BEGIN;
 -- Part 5: Phase 2 Row Level Security Policies
 \ir 00005_phase2_rls_policies.sql
 
+-- Part 6: Phase 3 Campaigns and Leads Schema
+\ir 00006_phase3_campaigns_and_leads.sql
+
+-- Part 7: Phase 3 Row Level Security Policies
+\ir 00007_phase3_rls_policies.sql
+
 COMMIT;

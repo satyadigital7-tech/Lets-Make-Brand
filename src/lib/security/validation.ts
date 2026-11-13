@@ -163,15 +163,77 @@ export type ContactFormData = z.infer<typeof contactSchema>;
 
 export const campaignCreateSchema = z.object({
   title: z.string().min(5, "Campaign title must be at least 5 characters").max(150).trim(),
+  brandName: z.string().min(2, "Brand / Client name must be at least 2 characters").max(150).trim().optional(),
   category: z.string().min(2, "Please select or specify a category").trim(),
   description: z.string().min(20, "Description must be at least 20 characters").max(2000).trim(),
-  targetAudience: z.string().max(500).optional(),
-  commissionRate: z.number().min(0.01, "Commission rate must be greater than 0"),
-  commissionType: z.enum(["percentage", "fixed"]),
+  instructions: z.string().max(3000).optional().or(z.literal("")),
+  eligibility: z.string().max(1000).optional().or(z.literal("")),
+  bannerImageUrl: z.string().url("Please enter a valid image URL").optional().or(z.literal("")),
+  targetAudience: z.string().max(500).optional().or(z.literal("")),
+  commissionRate: z.number().min(0, "Commission rate cannot be negative").default(0),
+  commissionAmount: z.number().min(0, "Commission amount cannot be negative").default(0),
+  maxPayout: z.number().min(0).optional().nullable(),
+  commissionType: z.enum(["percentage", "fixed"]).default("fixed"),
   budget: z.number().min(0, "Budget cannot be negative").default(0),
+  startDate: z.string().optional().or(z.literal("")),
+  endDate: z.string().optional().or(z.literal("")),
+  status: z.enum(["draft", "pending_approval", "active", "paused", "completed", "archived"]).default("active"),
+  requiredDocuments: z.array(z.string()).optional().default([]),
+  dynamicFields: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      type: z.enum(["text", "number", "select", "file", "textarea", "date", "boolean"]),
+      required: z.boolean(),
+      options: z.array(z.string()).optional(),
+      placeholder: z.string().optional(),
+    })
+  ).optional().default([]),
 });
 
 export type CampaignCreateFormData = z.infer<typeof campaignCreateSchema>;
+
+// MODULE 2: CAMPAIGN ASSIGNMENT SCHEMA
+export const campaignAssignmentSchema = z.object({
+  campaignId: z.string().uuid("Invalid Campaign ID"),
+  assignedType: z.enum(["all_partners", "partner", "vendor", "team", "team_member"]),
+  targetId: z.string().uuid("Invalid Target ID").optional().or(z.literal("")),
+});
+
+export type CampaignAssignmentFormData = z.infer<typeof campaignAssignmentSchema>;
+
+// MODULE 4: DYNAMIC LEAD SUBMISSION SCHEMA
+export const leadSubmissionSchema = z.object({
+  campaignId: z.string().uuid("Invalid Campaign ID"),
+  customerName: z.string().min(2, "Customer name must be at least 2 characters").max(100).trim(),
+  customerMobile: z.string().min(10, "Customer mobile number must be at least 10 digits").max(20).trim(),
+  customerEmail: z.string().email("Please provide a valid customer email address").trim().toLowerCase(),
+  customerLocation: z.string().max(150).optional().or(z.literal("")),
+  address: z.string().max(300).optional().or(z.literal("")),
+  additionalFields: z.record(z.string(), z.unknown()).optional().default({}),
+  documents: z.array(
+    z.object({
+      name: z.string(),
+      type: z.string().optional(),
+      url: z.string().url("Valid document file URL is required"),
+      size: z.number().optional(),
+    })
+  ).optional().default([]),
+  consentConfirmed: z.boolean().refine((val) => val === true, {
+    message: "Customer authorization and promotional consent confirmation is mandatory",
+  }),
+});
+
+export type LeadSubmissionFormData = z.infer<typeof leadSubmissionSchema>;
+
+// MODULE 6: LEAD REVIEW SCHEMA
+export const leadReviewSchema = z.object({
+  leadId: z.string().uuid("Invalid Lead ID"),
+  action: z.enum(["approve", "reject", "request_correction", "mark_under_verification"]),
+  reason: z.string().optional(),
+});
+
+export type LeadReviewFormData = z.infer<typeof leadReviewSchema>;
 
 export const adminPermissionUpdateSchema = z.object({
   userId: z.string().uuid("Invalid user ID"),

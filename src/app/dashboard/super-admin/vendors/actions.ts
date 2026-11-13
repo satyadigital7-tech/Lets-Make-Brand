@@ -203,3 +203,4 @@ export async function deactivateVendorAction(vendorUserId: string) {
   revalidatePath("/dashboard/super-admin/vendors");
   return { success: true };
 }
+

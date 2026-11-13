@@ -111,3 +111,4 @@ export async function cancelInvitationAction(invitationId: string) {
   revalidatePath("/dashboard/vendor/invitations");
   return { success: true };
 }
+

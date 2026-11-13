@@ -802,3 +802,4 @@ export function TeamManager({ initialTeams, availableLeaders }: TeamManagerProps
     </div>
   );
 }
+
