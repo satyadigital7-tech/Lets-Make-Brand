@@ -114,3 +114,4 @@ To ensure that future enhancements do not compromise existing stability, securit
   - Daily disbursement caps to mitigate catastrophic balance drainage in the event of compromised credentials.
 - **Prerequisites:** Current Account opening with partner bank, corporate KYC with payment aggregator.
 - **Client Approval Gate:** **MANDATORY CLIENT APPROVAL REQUIRED.** Must not be activated without explicit corporate resolution.
+

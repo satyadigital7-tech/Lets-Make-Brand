@@ -168,3 +168,4 @@ flowchart LR
 4. **Pre-Release Cold Backup:** Capture an encrypted snapshot of the live production database.
 5. **Apply Database Migrations:** Run incremental SQL migrations against production Supabase using service-role authorization.
 6. **Production Cutover & Verification:** Merge PR to `master`, monitor Vercel production build, and query `/api/health` immediately.
+

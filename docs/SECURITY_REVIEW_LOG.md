@@ -85,3 +85,4 @@ ORDER BY p.full_name;
    - Run complete test suite (`pnpm test`).
    - Run full production build (`pnpm build`).
    - Verify Supabase SSR authentication and session cookies function cleanly.
+

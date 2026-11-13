@@ -104,3 +104,4 @@ Complete production-ready release of the Lets Make Brand (LMB) Enterprise Partne
 - **Fix (Mobile Topbar):** Added mobile hamburger drawer trigger to `DashboardTopbar` to eliminate mobile navigation friction.
 - **Fix (Support View Stacking):** Converted support tickets and chat thread from squeezed side-by-side columns to responsive master-detail view on mobile.
 - **Fix (Modal Form Overflow):** Replaced fixed 2-column modal forms in withdrawal requests, manual payments, and lead audits with fluid `grid-cols-1 sm:grid-cols-2` grids.
+
