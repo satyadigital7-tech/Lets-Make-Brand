@@ -140,3 +140,4 @@ LMB captures launch feedback and partner bug reports natively via the built-in S
    - **P1 (High):** Erroneous validation error on valid document upload → Patch within 24 hours.
    - **P2 (Normal):** UI enhancement, copy clarification, or filter optimization → Include in next minor sprint.
 3. **Staging Verification:** All improvements undergo testing in a non-production branch with `pnpm test` and `pnpm build` before deployment.
+

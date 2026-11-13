@@ -179,3 +179,4 @@ A: Once your KYC is verified and your available balance meets the minimum thresh
 
 **Q: How do I generate my official LMB ID card?**  
 A: Once your KYC application is approved by compliance, your high-resolution vector PDF ID card and Appointment Letter are generated automatically in your Documents tab (`/dashboard/partner/documents`).
+
