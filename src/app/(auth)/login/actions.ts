@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseEnvConfig } from "@/lib/supabase/env";
 import { loginSchema } from "@/lib/security/validation";
 
 /**
@@ -18,15 +19,11 @@ export async function loginAction(rawFormData: unknown) {
 
   const formData = result.data;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || supabaseUrl.includes("placeholder") || !supabaseKey) {
+  const envConfig = getSupabaseEnvConfig();
+  if (!envConfig.isConfigured) {
     return {
       success: false,
-      error: "Supabase connection is not properly configured in .env.local.",
+      error: envConfig.errorMessage || "Supabase connection is not properly configured.",
     };
   }
 

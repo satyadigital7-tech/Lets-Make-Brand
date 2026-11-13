@@ -1,18 +1,26 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_ANON_KEY } from "./constants";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    "https://placeholder-project-ref.supabase.co";
-  const supabaseAnonKey =
+  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const envKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    "placeholder_anon_key";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  const supabaseUrl =
+    envUrl && !envUrl.includes("placeholder-project-ref") && envUrl.startsWith("http")
+      ? envUrl
+      : DEFAULT_SUPABASE_URL;
+
+  const supabaseAnonKey =
+    envKey && !envKey.includes("placeholder_anon_key") && envKey.length > 10
+      ? envKey
+      : DEFAULT_SUPABASE_ANON_KEY;
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -66,4 +74,3 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse;
 }
-
