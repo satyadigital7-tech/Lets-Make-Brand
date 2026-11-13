@@ -16,9 +16,19 @@ export type UserRoleCode =
 
 export type AccountStatus =
   | "active"
+  | "pending_approval"
   | "pending_verification"
   | "suspended"
+  | "rejected"
   | "inactive";
+
+export type RegistrationType = "independent" | "team_member";
+
+export type TeamStatus = "active" | "inactive" | "archived";
+
+export type TeamRole = "leader" | "member";
+
+export type InvitationStatus = "pending" | "accepted" | "expired" | "cancelled";
 
 export type CampaignStatus =
   | "draft"
@@ -38,8 +48,24 @@ export interface Database {
           email: string;
           full_name: string | null;
           company_name: string | null;
+          business_name: string | null;
           phone: string | null;
+          mobile: string | null;
+          address: string | null;
+          city: string | null;
+          state: string | null;
+          pincode: string | null;
           avatar_url: string | null;
+          profile_photo_url: string | null;
+          dob: string | null;
+          gender: string | null;
+          referral_code: string | null;
+          registration_type: RegistrationType;
+          associated_vendor_id: string | null;
+          vendor_id_code: string | null;
+          partner_id_code: string | null;
+          rejection_reason: string | null;
+          suspension_reason: string | null;
           status: AccountStatus;
           created_at: string;
           updated_at: string;
@@ -49,8 +75,24 @@ export interface Database {
           email: string;
           full_name?: string | null;
           company_name?: string | null;
+          business_name?: string | null;
           phone?: string | null;
+          mobile?: string | null;
+          address?: string | null;
+          city?: string | null;
+          state?: string | null;
+          pincode?: string | null;
           avatar_url?: string | null;
+          profile_photo_url?: string | null;
+          dob?: string | null;
+          gender?: string | null;
+          referral_code?: string | null;
+          registration_type?: RegistrationType;
+          associated_vendor_id?: string | null;
+          vendor_id_code?: string | null;
+          partner_id_code?: string | null;
+          rejection_reason?: string | null;
+          suspension_reason?: string | null;
           status?: AccountStatus;
           created_at?: string;
           updated_at?: string;
@@ -60,9 +102,133 @@ export interface Database {
           email?: string;
           full_name?: string | null;
           company_name?: string | null;
+          business_name?: string | null;
           phone?: string | null;
+          mobile?: string | null;
+          address?: string | null;
+          city?: string | null;
+          state?: string | null;
+          pincode?: string | null;
           avatar_url?: string | null;
+          profile_photo_url?: string | null;
+          dob?: string | null;
+          gender?: string | null;
+          referral_code?: string | null;
+          registration_type?: RegistrationType;
+          associated_vendor_id?: string | null;
+          vendor_id_code?: string | null;
+          partner_id_code?: string | null;
+          rejection_reason?: string | null;
+          suspension_reason?: string | null;
           status?: AccountStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      teams: {
+        Row: {
+          id: string;
+          team_code: string;
+          vendor_id: string;
+          name: string;
+          description: string | null;
+          leader_id: string | null;
+          status: TeamStatus;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_code: string;
+          vendor_id: string;
+          name: string;
+          description?: string | null;
+          leader_id?: string | null;
+          status?: TeamStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_code?: string;
+          vendor_id?: string;
+          name?: string;
+          description?: string | null;
+          leader_id?: string | null;
+          status?: TeamStatus;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      team_members: {
+        Row: {
+          id: string;
+          team_id: string;
+          user_id: string;
+          role_in_team: TeamRole;
+          status: string;
+          joined_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          user_id: string;
+          role_in_team?: TeamRole;
+          status?: string;
+          joined_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          user_id?: string;
+          role_in_team?: TeamRole;
+          status?: string;
+          joined_at?: string;
+          updated_at?: string;
+        };
+      };
+      invitations: {
+        Row: {
+          id: string;
+          vendor_id: string;
+          team_id: string | null;
+          email: string;
+          role: "team_leader" | "team_member";
+          token: string;
+          status: InvitationStatus;
+          expires_at: string;
+          accepted_at: string | null;
+          accepted_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          vendor_id: string;
+          team_id?: string | null;
+          email: string;
+          role: "team_leader" | "team_member";
+          token: string;
+          status?: InvitationStatus;
+          expires_at: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          vendor_id?: string;
+          team_id?: string | null;
+          email?: string;
+          role?: "team_leader" | "team_member";
+          token?: string;
+          status?: InvitationStatus;
+          expires_at?: string;
+          accepted_at?: string | null;
+          accepted_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -305,4 +471,3 @@ export interface Database {
     };
   };
 }
-

@@ -1,19 +1,14 @@
 import React from "react";
-import { Users, Briefcase, Mail, Phone } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/common/empty-state";
-import { formatDate } from "@/lib/utils";
-
-export const dynamic = "force-dynamic";
+import { PartnerManager, PartnerItem } from "./partner-manager";
 
 export default async function SuperAdminPartnersPage() {
   await requireRole(["super_admin"]);
   const adminClient = createAdminClient();
 
+  // Fetch all users with partner roles
   const { data } = await adminClient
     .from("user_roles")
     .select(`
@@ -23,7 +18,20 @@ export default async function SuperAdminPartnersPage() {
         email,
         full_name,
         phone,
+        mobile,
         status,
+        partner_id_code,
+        registration_type,
+        associated_vendor_id,
+        referral_code,
+        dob,
+        gender,
+        address,
+        city,
+        state,
+        pincode,
+        rejection_reason,
+        suspension_reason,
         created_at
       ),
       roles!inner (
@@ -33,17 +41,54 @@ export default async function SuperAdminPartnersPage() {
     `)
     .in("roles.code", ["independent_partner", "team_leader", "team_member"]);
 
-  const partners = ((data as any[]) || []).map((item: any) => {
+  const rawList = (data as any[]) || [];
+
+  // Fetch vendor business names for associated vendors
+  const vendorIds = rawList
+    .map((item) => {
+      const prof = Array.isArray(item.profiles) ? item.profiles[0] : item.profiles;
+      return prof?.associated_vendor_id;
+    })
+    .filter(Boolean);
+
+  let vendorNameMap: Record<string, string> = {};
+  if (vendorIds.length > 0) {
+    const { data: vendorsData } = await adminClient
+      .from("profiles")
+      .select("id, business_name, full_name")
+      .in("id", vendorIds);
+
+    if (vendorsData) {
+      for (const v of vendorsData as any[]) {
+        vendorNameMap[v.id] = v.business_name || v.full_name || "Vendor";
+      }
+    }
+  }
+
+  const partners: PartnerItem[] = rawList.map((item: any) => {
     const prof = Array.isArray(item.profiles) ? item.profiles[0] : item.profiles;
     const roleObj = Array.isArray(item.roles) ? item.roles[0] : item.roles;
+
     return {
       id: prof?.id || item.user_id,
       email: prof?.email || "partner@network.com",
-      fullName: prof?.full_name || "Affiliate Partner",
+      fullName: prof?.full_name || "Promotional Partner",
+      phone: prof?.mobile || prof?.phone || "N/A",
       roleCode: roleObj?.code || "independent_partner",
       roleName: roleObj?.name || "Independent Partner",
-      phone: prof?.phone || "N/A",
-      status: prof?.status || "active",
+      status: prof?.status || "pending_approval",
+      partnerIdCode: prof?.partner_id_code || null,
+      registrationType: prof?.registration_type || "independent",
+      associatedVendorName: prof?.associated_vendor_id ? vendorNameMap[prof.associated_vendor_id] || "Assigned Vendor" : null,
+      referralCode: prof?.referral_code || null,
+      dob: prof?.dob ? String(prof.dob) : null,
+      gender: prof?.gender || null,
+      address: prof?.address || null,
+      city: prof?.city || null,
+      state: prof?.state || null,
+      pincode: prof?.pincode || null,
+      rejectionReason: prof?.rejection_reason || null,
+      suspensionReason: prof?.suspension_reason || null,
       createdAt: prof?.created_at || new Date().toISOString(),
     };
   });
@@ -51,68 +96,12 @@ export default async function SuperAdminPartnersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Partner Network Directory"
-        description="All promotional partners across Independent Affiliates, Team Leaders, and Agency Squads."
-        badge="PostgreSQL Records"
+        title="Partner Management & Network Directory"
+        description="Verify independent affiliates and vendor-invited team members, issue official Partner IDs, and regulate campaign privileges."
+        badge="Super Admin Only"
       />
 
-      {partners.length > 0 ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Partner Name</TableHead>
-              <TableHead>Partner Tier / Role</TableHead>
-              <TableHead>Email Address</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {partners.map((partner) => (
-              <TableRow key={partner.id}>
-                <TableCell className="font-bold text-xs text-slate-900">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-3.5 w-3.5 text-blue-600" />
-                    <span>{partner.fullName}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="brand" className="text-[10px] py-0 px-1.5 font-semibold">
-                    {partner.roleName}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs text-slate-500 font-mono">
-                  {partner.email}
-                </TableCell>
-                <TableCell className="text-xs text-slate-500 font-mono">
-                  {partner.phone}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={partner.status === "active" ? "success" : "secondary"}
-                    className="text-[10px] py-0 px-1.5"
-                  >
-                    {partner.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs text-slate-400 font-mono">
-                  {formatDate(partner.createdAt)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <EmptyState
-          icon={<Users className="h-8 w-8 text-slate-400" />}
-          title="No partners registered in database"
-          description="When independent partners register through the public portal, their profile records will populate here."
-          actionLabel="Register as Partner"
-          actionHref="/register?role=independent_partner"
-        />
-      )}
+      <PartnerManager initialPartners={partners} />
     </div>
   );
 }
-

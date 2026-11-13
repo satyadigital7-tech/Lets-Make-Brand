@@ -1,12 +1,28 @@
-import { UserRoleCode, AccountStatus } from "./database.types";
+import { UserRoleCode, AccountStatus, RegistrationType } from "./database.types";
 
 export interface UserProfile {
   id: string;
   email: string;
   full_name: string | null;
   company_name: string | null;
+  business_name: string | null;
   phone: string | null;
+  mobile: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  pincode: string | null;
   avatar_url: string | null;
+  profile_photo_url: string | null;
+  dob: string | null;
+  gender: string | null;
+  referral_code: string | null;
+  registration_type: RegistrationType;
+  associated_vendor_id: string | null;
+  vendor_id_code: string | null;
+  partner_id_code: string | null;
+  rejection_reason: string | null;
+  suspension_reason: string | null;
   status: AccountStatus;
   created_at: string;
   updated_at: string;
@@ -43,4 +59,3 @@ export interface RoleNavigationItem {
   requiredPermission?: string;
   isPhase1Ready?: boolean;
 }
-

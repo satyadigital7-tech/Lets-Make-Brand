@@ -1,21 +1,15 @@
 import React from "react";
-import { Store, ShieldCheck, Mail, Building, Phone } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/common/empty-state";
-import { formatDate } from "@/lib/utils";
-
-export const dynamic = "force-dynamic";
+import { VendorManager, VendorItem } from "./vendor-manager";
 
 export default async function SuperAdminVendorsPage() {
   await requireRole(["super_admin"]);
   const adminClient = createAdminClient();
 
-  const { data } = await adminClient
+  // 1. Fetch all users with 'vendor' role
+  const { data: vendorUsersData } = await adminClient
     .from("user_roles")
     .select(`
       user_id,
@@ -23,9 +17,18 @@ export default async function SuperAdminVendorsPage() {
         id,
         email,
         full_name,
+        business_name,
         company_name,
         phone,
+        mobile,
         status,
+        vendor_id_code,
+        address,
+        city,
+        state,
+        pincode,
+        rejection_reason,
+        suspension_reason,
         created_at
       ),
       roles!inner (
@@ -34,82 +37,81 @@ export default async function SuperAdminVendorsPage() {
     `)
     .eq("roles.code", "vendor");
 
-  const vendors = ((data as any[]) || []).map((item: any) => {
+  const vendorUserIds = ((vendorUsersData as any[]) || []).map((u: any) => u.user_id);
+
+  // 2. Fetch associated teams for all vendors
+  let teamsByVendor: Record<string, any[]> = {};
+  if (vendorUserIds.length > 0) {
+    const { data: teamsData } = await adminClient
+      .from("teams")
+      .select(`
+        id,
+        team_code,
+        name,
+        vendor_id,
+        leader_id,
+        leader:leader_id (
+          full_name
+        ),
+        team_members (
+          id,
+          status
+        )
+      `)
+      .in("vendor_id", vendorUserIds);
+
+    if (teamsData) {
+      for (const t of teamsData as any[]) {
+        if (!teamsByVendor[t.vendor_id]) {
+          teamsByVendor[t.vendor_id] = [];
+        }
+        const leaderObj = Array.isArray(t.leader) ? t.leader[0] : t.leader;
+        const activeMembers = Array.isArray(t.team_members)
+          ? t.team_members.filter((m: any) => m.status === "active").length
+          : 0;
+
+        teamsByVendor[t.vendor_id].push({
+          id: t.id,
+          teamCode: t.team_code,
+          name: t.name,
+          leaderName: leaderObj?.full_name || null,
+          memberCount: activeMembers,
+        });
+      }
+    }
+  }
+
+  // 3. Format vendor items
+  const vendors: VendorItem[] = ((vendorUsersData as any[]) || []).map((item: any) => {
     const prof = Array.isArray(item.profiles) ? item.profiles[0] : item.profiles;
     return {
       id: prof?.id || item.user_id,
       email: prof?.email || "vendor@company.com",
       fullName: prof?.full_name || "Merchant Owner",
-      companyName: prof?.company_name || "Enterprise Brand",
-      phone: prof?.phone || "N/A",
-      status: prof?.status || "active",
+      businessName: prof?.business_name || prof?.company_name || "Enterprise Brand",
+      phone: prof?.mobile || prof?.phone || "N/A",
+      status: prof?.status || "pending_approval",
+      vendorIdCode: prof?.vendor_id_code || null,
+      address: prof?.address || null,
+      city: prof?.city || null,
+      state: prof?.state || null,
+      pincode: prof?.pincode || null,
+      rejectionReason: prof?.rejection_reason || null,
+      suspensionReason: prof?.suspension_reason || null,
       createdAt: prof?.created_at || new Date().toISOString(),
+      teams: teamsByVendor[prof?.id || item.user_id] || [],
     };
   });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Vendors Directory"
-        description="Vetted brand merchants, campaign sponsors, and company profiles registered on LMB."
-        badge="PostgreSQL Records"
+        title="Vendor Management & Brand Directory"
+        description="Review merchant applications, approve brand accounts, issue unique vendor credentials, and inspect associated squads."
+        badge="Super Admin Only"
       />
 
-      {vendors.length > 0 ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Company & Brand</TableHead>
-              <TableHead>Contact Person</TableHead>
-              <TableHead>Email Address</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Registered</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {vendors.map((vendor) => (
-              <TableRow key={vendor.id}>
-                <TableCell className="font-bold text-xs text-slate-900">
-                  <div className="flex items-center gap-2">
-                    <Building className="h-3.5 w-3.5 text-blue-600" />
-                    <span>{vendor.companyName}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs text-slate-700">
-                  {vendor.fullName}
-                </TableCell>
-                <TableCell className="text-xs text-slate-500 font-mono">
-                  {vendor.email}
-                </TableCell>
-                <TableCell className="text-xs text-slate-500 font-mono">
-                  {vendor.phone}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={vendor.status === "active" ? "success" : "secondary"}
-                    className="text-[10px] py-0 px-1.5"
-                  >
-                    {vendor.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs text-slate-400 font-mono">
-                  {formatDate(vendor.createdAt)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <EmptyState
-          icon={<Store className="h-8 w-8 text-slate-400" />}
-          title="No vendors registered in database"
-          description="When brand merchants register on the public site or are provisioned by an administrator, they will appear here in real time."
-          actionLabel="Register Test Vendor"
-          actionHref="/register?role=vendor"
-        />
-      )}
+      <VendorManager initialVendors={vendors} />
     </div>
   );
 }
-

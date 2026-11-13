@@ -34,9 +34,25 @@ export async function getCurrentUser(): Promise<AuthContextUser | null> {
     email: authUser.email || "",
     full_name: (authUser.user_metadata?.full_name as string) || null,
     company_name: (authUser.user_metadata?.company_name as string) || null,
+    business_name: (authUser.user_metadata?.business_name as string) || (authUser.user_metadata?.company_name as string) || null,
     phone: (authUser.user_metadata?.phone as string) || null,
+    mobile: (authUser.user_metadata?.mobile as string) || (authUser.user_metadata?.phone as string) || null,
+    address: (authUser.user_metadata?.address as string) || null,
+    city: (authUser.user_metadata?.city as string) || null,
+    state: (authUser.user_metadata?.state as string) || null,
+    pincode: (authUser.user_metadata?.pincode as string) || null,
     avatar_url: null,
-    status: "active",
+    profile_photo_url: (authUser.user_metadata?.profile_photo_url as string) || null,
+    dob: (authUser.user_metadata?.dob as string) || null,
+    gender: (authUser.user_metadata?.gender as string) || null,
+    referral_code: (authUser.user_metadata?.referral_code as string) || null,
+    registration_type: (authUser.user_metadata?.registration_type as "independent" | "team_member") || "independent",
+    associated_vendor_id: (authUser.user_metadata?.associated_vendor_id as string) || null,
+    vendor_id_code: null,
+    partner_id_code: null,
+    rejection_reason: null,
+    suspension_reason: null,
+    status: "pending_approval",
     created_at: authUser.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -56,7 +72,6 @@ export async function getCurrentUser(): Promise<AuthContextUser | null> {
   const roles: UserRoleCode[] = [];
   if (userRolesData && userRolesData.length > 0) {
     for (const item of userRolesData as any[]) {
-      // Supabase join may return object or array
       const roleObj = Array.isArray(item.roles) ? item.roles[0] : item.roles;
       if (roleObj?.code) {
         roles.push(roleObj.code as UserRoleCode);
@@ -67,7 +82,7 @@ export async function getCurrentUser(): Promise<AuthContextUser | null> {
   // Fallback to role stored in user_metadata or default to independent_partner if no DB record
   if (roles.length === 0) {
     const metaRole = authUser.user_metadata?.role as UserRoleCode;
-    if (metaRole && (metaRole === "vendor" || metaRole === "independent_partner")) {
+    if (metaRole && (metaRole === "vendor" || metaRole === "independent_partner" || metaRole === "team_leader" || metaRole === "team_member")) {
       roles.push(metaRole);
     } else {
       roles.push("independent_partner");
@@ -94,23 +109,25 @@ export async function getCurrentUser(): Promise<AuthContextUser | null> {
     permissionsSet.add("*");
   } else {
     // 1. Role permissions
-    const roleIds = ((userRolesData as any[]) || []).map((ur) => ur.role_id);
-    const { data: rolePermissionsData } = await supabase
-      .from("role_permissions")
-      .select(`
-        permissions:permissions (
-          code
-        )
-      `)
-      .in("role_id", roleIds);
+    const roleIds = ((userRolesData as any[]) || []).map((ur: any) => ur.role_id);
+    if (roleIds.length > 0) {
+      const { data: rolePermissionsData } = await supabase
+        .from("role_permissions")
+        .select(`
+          permissions:permissions (
+            code
+          )
+        `)
+        .in("role_id", roleIds);
 
-    if (rolePermissionsData) {
-      for (const item of rolePermissionsData as any[]) {
-        const permObj = Array.isArray(item.permissions)
-          ? item.permissions[0]
-          : item.permissions;
-        if (permObj?.code) {
-          permissionsSet.add(permObj.code);
+      if (rolePermissionsData) {
+        for (const item of rolePermissionsData as any[]) {
+          const permObj = Array.isArray(item.permissions)
+            ? item.permissions[0]
+            : item.permissions;
+          if (permObj?.code) {
+            permissionsSet.add(permObj.code);
+          }
         }
       }
     }
@@ -157,6 +174,22 @@ export async function requireAuth(): Promise<AuthContextUser> {
   if (!user) {
     redirect("/login");
   }
+
+  // ACCOUNT LIFECYCLE GUARD:
+  // Super Admin & Admin bypass approval requirement.
+  const isSuperOrAdmin = user.roles.includes("super_admin") || user.roles.includes("admin");
+  if (!isSuperOrAdmin) {
+    if (user.profile.status === "pending_approval") {
+      redirect("/pending-approval");
+    }
+    if (user.profile.status === "suspended") {
+      redirect("/account-status?status=suspended");
+    }
+    if (user.profile.status === "rejected") {
+      redirect("/account-status?status=rejected");
+    }
+  }
+
   return user;
 }
 
@@ -190,4 +223,3 @@ export async function requirePermission(
 
   return user;
 }
-

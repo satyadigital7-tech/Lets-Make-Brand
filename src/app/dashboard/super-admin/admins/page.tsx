@@ -3,8 +3,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
 import { AdminManager } from "./admin-manager";
-
-export const dynamic = "force-dynamic";
+import { CreateAdminDialog } from "./create-admin-dialog";
 
 export default async function AdminManagementPage() {
   await requireRole(["super_admin"]);
@@ -83,11 +82,14 @@ export default async function AdminManagementPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Admin Management & Explicit Permissions"
-        description="Inspect administrator accounts, assign module privileges, and govern sensitive vendor portfolio transfer authorizations."
-        badge="Super Admin Only"
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <PageHeader
+          title="Admin Management & Explicit Permissions"
+          description="Inspect administrator accounts, assign module privileges, and govern sensitive vendor portfolio transfer authorizations."
+          badge="Super Admin Only"
+        />
+        <CreateAdminDialog />
+      </div>
 
       <AdminManager
         admins={admins}
@@ -96,4 +98,3 @@ export default async function AdminManagementPage() {
     </div>
   );
 }
-

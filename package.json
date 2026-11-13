@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types scripts/test-phase1.mjs"
+    "test:phase1": "node --experimental-strip-types scripts/test-phase1.mjs",
+    "test:phase2": "node scripts/test-phase2.mjs",
+    "test": "node --experimental-strip-types scripts/test-phase1.mjs && node scripts/test-phase2.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
