@@ -13,6 +13,7 @@
     "test:phase4": "node scripts/test-phase4.mjs",
     "test:phase5": "node scripts/test-phase5.mjs",
     "test:phase6": "node scripts/test-phase6.mjs",
+    "verify:supabase": "node scripts/verify-supabase-connection.mjs",
     "test": "node --experimental-strip-types scripts/test-phase1.mjs && node scripts/test-phase2.mjs && node --experimental-strip-types scripts/test-phase3.mjs && node scripts/test-phase4.mjs && node scripts/test-phase5.mjs && node scripts/test-phase6.mjs"
   },
   "dependencies": {
