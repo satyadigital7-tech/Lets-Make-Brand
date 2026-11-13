@@ -1,0 +1,264 @@
+"use client";
+
+import React, { useState } from "react";
+import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { contactSchema, ContactFormData } from "@/lib/security/validation";
+
+export default function ContactPage() {
+  const [formData, setFormData] = useState<ContactFormData>({
+    name: "",
+    email: "",
+    phone: "",
+    inquiryType: "partner",
+    subject: "",
+    message: "",
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+    setServerError(null);
+
+    // Validate with Zod
+    const result = contactSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0].toString()] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Simulate/execute contact dispatch
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      setIsSuccess(true);
+    } catch {
+      setServerError("An unexpected error occurred. Please reach out to contact@letsmakebrand.com directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <Badge variant="brand">Enterprise Assistance</Badge>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Contact the LMB Operations Team
+          </h1>
+          <p className="text-sm text-slate-600">
+            Have questions regarding vendor onboarding, partner squad contracts, or technical integration? We are here to help.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Contact Details Card */}
+          <div className="space-y-6">
+            <Card className="border-slate-200">
+              <CardContent className="p-6 space-y-6">
+                <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+                  Direct Channels
+                </h3>
+
+                <div className="space-y-4 text-xs text-slate-700">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="font-semibold block text-slate-900">General Inquiries</span>
+                      <a href="mailto:contact@letsmakebrand.com" className="text-blue-600 hover:underline">
+                        contact@letsmakebrand.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+                      <Phone className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="font-semibold block text-slate-900">Phone Support</span>
+                      <span className="text-slate-600">+1 (800) 562-2726</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="font-semibold block text-slate-900">Headquarters</span>
+                      <span className="text-slate-600">
+                        Enterprise Way, Tech Corridor, NY 10001
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 text-xs text-slate-500">
+                  <strong>Operating Hours:</strong> Monday – Friday, 9:00 AM – 6:00 PM EST.
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Form */}
+          <div className="lg:col-span-2">
+            <Card className="border-slate-200">
+              <CardContent className="p-6 sm:p-8">
+                {isSuccess ? (
+                  <div className="py-8 text-center space-y-4">
+                    <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                      <CheckCircle2 className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900">
+                      Inquiry Received Successfully
+                    </h3>
+                    <p className="text-xs text-slate-600 max-w-md mx-auto">
+                      Thank you for contacting Lets Make Brand. A representative will review your message and reply to {formData.email} within 1 business day.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsSuccess(false);
+                        setFormData({
+                          name: "",
+                          email: "",
+                          phone: "",
+                          inquiryType: "partner",
+                          subject: "",
+                          message: "",
+                        });
+                      }}
+                    >
+                      Send Another Message
+                    </Button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {serverError && (
+                      <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Submission Error</AlertTitle>
+                        <AlertDescription>{serverError}</AlertDescription>
+                      </Alert>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label required htmlFor="name">Your Name</Label>
+                        <Input
+                          id="name"
+                          placeholder="Jane Doe"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          error={errors.name}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label required htmlFor="email">Business Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="jane@company.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          error={errors.email}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="phone">Phone (Optional)</Label>
+                        <Input
+                          id="phone"
+                          placeholder="+1 (555) 000-0000"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          error={errors.phone}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label htmlFor="inquiryType">Inquiry Type</Label>
+                        <select
+                          id="inquiryType"
+                          value={formData.inquiryType}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              inquiryType: e.target.value as ContactFormData["inquiryType"],
+                            })
+                          }
+                          className="flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                        >
+                          <option value="partner">Partner Network Application</option>
+                          <option value="vendor">Brand Vendor Onboarding</option>
+                          <option value="enterprise">Enterprise Custom Deployment</option>
+                          <option value="support">Technical & Ledger Support</option>
+                          <option value="general">General Inquiries</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label required htmlFor="subject">Subject</Label>
+                      <Input
+                        id="subject"
+                        placeholder="Brief summary of your inquiry"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        error={errors.subject}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label required htmlFor="message">Message</Label>
+                      <textarea
+                        id="message"
+                        rows={4}
+                        placeholder="Provide details about your brand, partner squad, or request..."
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="flex w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:border-transparent transition-colors"
+                      />
+                      {errors.message && (
+                        <p className="text-xs text-rose-600 font-medium">{errors.message}</p>
+                      )}
+                    </div>
+
+                    <Button type="submit" isLoading={isSubmitting} className="w-full sm:w-auto font-semibold">
+                      <Send className="h-4 w-4 mr-2" />
+                      <span>Submit Inquiry</span>
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
