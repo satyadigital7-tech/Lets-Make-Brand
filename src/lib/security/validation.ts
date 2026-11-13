@@ -245,3 +245,53 @@ export const systemSettingUpdateSchema = z.object({
   key: z.string().min(1, "Setting key is required"),
   value: z.record(z.string(), z.unknown()),
 });
+
+// ==============================================================================
+// PHASE 4: COMMISSION MANAGEMENT SCHEMAS
+// ==============================================================================
+
+// MODULE 1: SUPER ADMIN COMMISSION RULE SCHEMA
+export const commissionRuleSchema = z
+  .object({
+    campaignId: z.string().uuid("Invalid Campaign ID"),
+    maxCommissionAmount: z.number().min(0, "Maximum commission cap must be non-negative"),
+    partnerDefaultCommission: z.number().min(0, "Partner default commission must be non-negative"),
+    vendorMaxCommission: z.number().min(0, "Vendor maximum commission must be non-negative").default(0),
+    independentPartnerCommission: z.number().min(0, "Independent partner commission must be non-negative"),
+    notes: z.string().max(500).optional(),
+  })
+  .refine(
+    (data) => data.independentPartnerCommission <= data.maxCommissionAmount,
+    {
+      message: "Independent partner commission cannot exceed the maximum campaign limit",
+      path: ["independentPartnerCommission"],
+    }
+  )
+  .refine(
+    (data) => data.partnerDefaultCommission <= data.maxCommissionAmount,
+    {
+      message: "Partner default commission cannot exceed the maximum campaign limit",
+      path: ["partnerDefaultCommission"],
+    }
+  );
+
+export type CommissionRuleFormData = z.infer<typeof commissionRuleSchema>;
+
+// MODULE 2: VENDOR COMMISSION SPLIT SCHEMA
+export const vendorSplitSchema = z.object({
+  campaignId: z.string().uuid("Invalid Campaign ID"),
+  vendorShare: z.number().min(0, "Vendor share must be non-negative"),
+  partnerShare: z.number().min(0, "Partner share must be non-negative"),
+  notes: z.string().max(500).optional(),
+});
+
+export type VendorSplitFormData = z.infer<typeof vendorSplitSchema>;
+
+// MODULE 8: COMMISSION REVERSAL SCHEMA
+export const commissionReversalSchema = z.object({
+  transactionId: z.string().uuid("Invalid Transaction ID"),
+  reason: z.string().min(5, "Reversal justification must be at least 5 characters").max(500).trim(),
+});
+
+export type CommissionReversalFormData = z.infer<typeof commissionReversalSchema>;
+

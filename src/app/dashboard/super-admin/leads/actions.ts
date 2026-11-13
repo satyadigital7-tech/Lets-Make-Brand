@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { logAuditEvent } from "@/lib/security/audit";
 import { leadReviewSchema, LeadReviewFormData } from "@/lib/security/validation";
 import { createNotification } from "@/lib/services/notifications";
+import { processLeadCommission } from "@/lib/services/commission";
 
 export async function reviewLeadAction(data: LeadReviewFormData) {
   const reviewer = await requireRole(["super_admin", "admin"]);
@@ -124,7 +125,29 @@ export async function reviewLeadAction(data: LeadReviewFormData) {
     entityId: lead.id,
   });
 
-  // 5. Audit Log
+  // 5. Automatic Commission Calculation Engine (Phase 4 Module 4 & 5)
+  if (newStatus === "approved") {
+    try {
+      const commResult = await processLeadCommission(lead.id, reviewer.id, adminClient);
+      if (commResult.success && !commResult.alreadyProcessed) {
+        // Notify partner of credited commission
+        if (commResult.partnerShare && commResult.partnerShare > 0) {
+          await createNotification({
+            userId: lead.submitted_by,
+            title: "Commission Accrued!",
+            message: `₹${commResult.partnerShare} commission credited for lead ${lead.lead_code}.`,
+            type: "commission_credited",
+            entityType: "commission_transaction",
+            entityId: commResult.partnerTransactionCode || null,
+          });
+        }
+      }
+    } catch (commErr: any) {
+      console.error("Automatic commission calculation error:", commErr?.message);
+    }
+  }
+
+  // 6. Audit Log
   await logAuditEvent({
     userId: reviewer.id,
     action: `LEAD_${actionName}`,
@@ -143,6 +166,9 @@ export async function reviewLeadAction(data: LeadReviewFormData) {
   revalidatePath("/dashboard/partner/leads");
   revalidatePath("/dashboard/vendor/leads");
   revalidatePath("/dashboard/team-leader/leads");
+  revalidatePath("/dashboard/super-admin/commission");
+  revalidatePath("/dashboard/partner/commission");
+  revalidatePath("/dashboard/vendor/commission");
 
   return { success: true, newStatus };
 }

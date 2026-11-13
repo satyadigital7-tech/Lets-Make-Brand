@@ -60,7 +60,13 @@ export type NotificationType =
   | "lead_approved"
   | "lead_rejected"
   | "correction_requested"
-  | "duplicate_detected";
+  | "duplicate_detected"
+  | "commission_credited"
+  | "commission_reversed";
+
+export type TransactionType = "credit" | "debit" | "reversal" | "adjustment";
+export type CommissionStatus = "pending" | "approved" | "paid" | "reversed";
+export type BeneficiaryRole = "partner" | "vendor";
 
 export interface DynamicFieldDef {
   id: string;
@@ -763,6 +769,220 @@ export interface Database {
           created_at?: string;
         };
       };
+      commission_rules: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          max_commission_amount: number;
+          partner_default_commission: number;
+          vendor_max_commission: number;
+          independent_partner_commission: number;
+          currency: string;
+          is_active: boolean;
+          version: number;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          max_commission_amount: number;
+          partner_default_commission: number;
+          vendor_max_commission?: number;
+          independent_partner_commission: number;
+          currency?: string;
+          is_active?: boolean;
+          version?: number;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          max_commission_amount?: number;
+          partner_default_commission?: number;
+          vendor_max_commission?: number;
+          independent_partner_commission?: number;
+          currency?: string;
+          is_active?: boolean;
+          version?: number;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      vendor_commission_splits: {
+        Row: {
+          id: string;
+          vendor_id: string;
+          campaign_id: string;
+          vendor_share: number;
+          partner_share: number;
+          total_split: number;
+          version: number;
+          is_active: boolean;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          vendor_id: string;
+          campaign_id: string;
+          vendor_share: number;
+          partner_share: number;
+          version?: number;
+          is_active?: boolean;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          vendor_id?: string;
+          campaign_id?: string;
+          vendor_share?: number;
+          partner_share?: number;
+          version?: number;
+          is_active?: boolean;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      commission_transactions: {
+        Row: {
+          id: string;
+          transaction_code: string;
+          lead_id: string;
+          campaign_id: string;
+          vendor_id: string | null;
+          partner_id: string;
+          team_id: string | null;
+          user_id: string;
+          beneficiary_role: BeneficiaryRole;
+          commission_amount: number;
+          transaction_type: TransactionType;
+          commission_status: CommissionStatus;
+          reference_code: string;
+          original_transaction_id: string | null;
+          description: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          transaction_code: string;
+          lead_id: string;
+          campaign_id: string;
+          vendor_id?: string | null;
+          partner_id: string;
+          team_id?: string | null;
+          user_id: string;
+          beneficiary_role: BeneficiaryRole;
+          commission_amount: number;
+          transaction_type: TransactionType;
+          commission_status: CommissionStatus;
+          reference_code: string;
+          original_transaction_id?: string | null;
+          description?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          transaction_code?: string;
+          lead_id?: string;
+          campaign_id?: string;
+          vendor_id?: string | null;
+          partner_id?: string;
+          team_id?: string | null;
+          user_id?: string;
+          beneficiary_role?: BeneficiaryRole;
+          commission_amount?: number;
+          transaction_type?: TransactionType;
+          commission_status?: CommissionStatus;
+          reference_code?: string;
+          original_transaction_id?: string | null;
+          description?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+      };
+      commission_reversals: {
+        Row: {
+          id: string;
+          transaction_id: string;
+          reversal_transaction_id: string;
+          reason: string;
+          initiated_by: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          transaction_id: string;
+          reversal_transaction_id: string;
+          reason: string;
+          initiated_by: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          transaction_id?: string;
+          reversal_transaction_id?: string;
+          reason?: string;
+          initiated_by?: string;
+          created_at?: string;
+        };
+      };
+      commission_audit_logs: {
+        Row: {
+          id: string;
+          lead_id: string | null;
+          transaction_id: string | null;
+          actor_id: string | null;
+          action: string;
+          amount: number | null;
+          details: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id?: string | null;
+          transaction_id?: string | null;
+          actor_id?: string | null;
+          action: string;
+          amount?: number | null;
+          details?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string | null;
+          transaction_id?: string | null;
+          actor_id?: string | null;
+          action?: string;
+          amount?: number | null;
+          details?: Json;
+          created_at?: string;
+        };
+      };
     };
   };
 }
+
+// Module Convenience Exports
+export type CommissionRule = Database["public"]["Tables"]["commission_rules"]["Row"];
+export type VendorCommissionSplit = Database["public"]["Tables"]["vendor_commission_splits"]["Row"];
+export type CommissionTransaction = Database["public"]["Tables"]["commission_transactions"]["Row"];
+export type CommissionReversal = Database["public"]["Tables"]["commission_reversals"]["Row"];
+export type CommissionAuditLog = Database["public"]["Tables"]["commission_audit_logs"]["Row"];
+

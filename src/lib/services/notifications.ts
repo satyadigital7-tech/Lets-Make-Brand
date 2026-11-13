@@ -6,8 +6,8 @@ export interface NotificationPayload {
   title: string;
   message: string;
   type: NotificationType;
-  entityType?: "campaign" | "lead";
-  entityId?: string;
+  entityType?: "campaign" | "lead" | "commission_transaction" | string;
+  entityId?: string | null;
 }
 
 export async function createNotification(payload: NotificationPayload) {

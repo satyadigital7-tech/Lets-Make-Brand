@@ -26,4 +26,10 @@ BEGIN;
 -- Part 7: Phase 3 Row Level Security Policies
 \ir 00007_phase3_rls_policies.sql
 
+-- Part 8: Phase 4 Commission Management Schema
+\ir 00008_phase4_commission_management.sql
+
+-- Part 9: Phase 4 Commission Row Level Security Policies
+\ir 00009_phase4_rls_policies.sql
+
 COMMIT;
