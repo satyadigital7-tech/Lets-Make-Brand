@@ -50,3 +50,4 @@ As a registered Vendor Agency on the Lets Make Brand platform, you have access t
 
 - **Vendor ID Card:** Download your official digital ID card with your unique vendor code and QR verification badge.
 - **Master Vendor Agreement:** Download your counter-signed appointment agreement with LMB platform terms.
+

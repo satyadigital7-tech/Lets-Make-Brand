@@ -67,7 +67,7 @@ export default async function VendorReportsPage() {
       />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="border-slate-200 bg-white shadow-xs">
           <CardContent className="p-4">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">

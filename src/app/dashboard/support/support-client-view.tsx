@@ -13,6 +13,7 @@ import {
   FileText,
   User,
   ShieldAlert,
+  ChevronLeft,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -227,7 +228,7 @@ export function SupportClientView({ initialTickets, currentUserId }: SupportClie
       {/* Two Column Layout: Ticket List & Conversation Thread */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Ticket List */}
-        <Card className="border-slate-200 bg-white shadow-xs overflow-hidden md:col-span-1">
+        <Card className={`border-slate-200 bg-white shadow-xs overflow-hidden md:col-span-1 ${activeTicket ? "hidden md:block" : "block"}`}>
           <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
               My Support Inquiries ({tickets.length})
@@ -273,12 +274,20 @@ export function SupportClientView({ initialTickets, currentUserId }: SupportClie
         </Card>
 
         {/* Right: Selected Ticket Discussion Thread */}
-        <Card className="border-slate-200 bg-white shadow-xs md:col-span-2 flex flex-col justify-between min-h-[500px]">
+        <Card className={`border-slate-200 bg-white shadow-xs md:col-span-2 flex flex-col justify-between min-h-[500px] ${!activeTicket ? "hidden md:flex" : "flex"}`}>
           {activeTicket ? (
             <>
               {/* Ticket Topbar */}
               <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTicketId(null)}
+                    className="md:hidden inline-flex items-center gap-1 text-xs font-semibold text-blue-600 mb-2 hover:underline"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span>Back to Inquiries</span>
+                  </button>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-xs font-bold text-blue-600">
                       {activeTicket.ticketCode}

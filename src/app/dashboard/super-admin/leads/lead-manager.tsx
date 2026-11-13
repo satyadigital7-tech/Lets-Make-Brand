@@ -517,7 +517,7 @@ export function LeadManager({
                 <h4 className="font-bold uppercase tracking-wider text-slate-500 border-b pb-1">
                   Customer & Submitter Details
                 </h4>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="text-slate-400 block font-medium">Customer Legal Name</span>
                     <strong className="text-slate-800">{selectedLead.customerName}</strong>
@@ -555,7 +555,7 @@ export function LeadManager({
                   <h4 className="font-bold uppercase tracking-wider text-slate-500 border-b pb-1">
                     Custom Campaign Questions & Answers
                   </h4>
-                  <div className="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-lg border">
                     {Object.entries(selectedLead.additionalFields).map(([k, v]) => (
                       <div key={k}>
                         <span className="text-slate-400 block capitalize text-[10px]">

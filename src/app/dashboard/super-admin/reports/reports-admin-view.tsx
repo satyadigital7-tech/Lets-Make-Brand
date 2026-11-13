@@ -127,31 +127,33 @@ export function ReportsAdminView({ initialMetrics, recentExports }: ReportsAdmin
       {/* Date Filter & Export Controls Bar */}
       <Card className="border-slate-200 bg-white shadow-xs">
         <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold w-full sm:w-auto">
               <Calendar className="h-3.5 w-3.5 text-slate-400" />
               <span>Date Range:</span>
             </div>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="text-xs h-8 w-36"
-            />
-            <span className="text-xs text-slate-400">to</span>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="text-xs h-8 w-36"
-            />
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="text-xs h-8 flex-1 sm:w-36"
+              />
+              <span className="text-xs text-slate-400 shrink-0">to</span>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="text-xs h-8 flex-1 sm:w-36"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
             <select
               value={selectedReportType}
               onChange={(e) => setSelectedReportType(e.target.value as any)}
-              className="text-xs h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 font-bold"
+              className="text-xs h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 font-bold flex-1 sm:flex-initial"
             >
               <option value="financial">Financial Treasury</option>
               <option value="leads">Lead Conversions</option>
@@ -166,7 +168,7 @@ export function ReportsAdminView({ initialMetrics, recentExports }: ReportsAdmin
               variant="outline"
               disabled={isPending}
               onClick={() => handleExport("csv")}
-              className="text-xs h-8 gap-1 font-bold text-slate-700"
+              className="text-xs h-8 gap-1 font-bold text-slate-700 flex-1 sm:flex-initial justify-center"
             >
               <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600" />
               {isPending && exportingFormat === "csv" ? "Exporting..." : "Export CSV"}
@@ -176,7 +178,7 @@ export function ReportsAdminView({ initialMetrics, recentExports }: ReportsAdmin
               size="sm"
               disabled={isPending}
               onClick={() => handleExport("pdf")}
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs h-8 gap-1 shadow-sm"
+              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs h-8 gap-1 shadow-sm flex-1 sm:flex-initial justify-center"
             >
               <FileText className="h-3.5 w-3.5 text-blue-400" />
               {isPending && exportingFormat === "pdf" ? "Exporting..." : "Export PDF"}
@@ -195,7 +197,7 @@ export function ReportsAdminView({ initialMetrics, recentExports }: ReportsAdmin
           <span className="text-[10px] text-slate-400">Derived from verified commission ledger records</span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Card className="border-slate-200 bg-white shadow-xs">
             <CardContent className="p-4">
               <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">

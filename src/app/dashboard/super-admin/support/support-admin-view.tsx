@@ -12,6 +12,7 @@ import {
   Shield,
   FileText,
   User,
+  ChevronLeft,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,6 +63,7 @@ export function SupportAdminView({
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(
     initialTickets[0]?.id || null
   );
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
 
   const [isPending, startTransition] = useTransition();
   const [replyText, setReplyText] = useState("");
@@ -202,21 +204,21 @@ export function SupportAdminView({
 
       {/* Filters Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-        <div className="relative w-64">
+        <div className="relative w-full sm:w-64">
           <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <Input
             placeholder="Search code, subject, user, email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8 text-xs h-8 bg-slate-50"
+            className="pl-8 text-xs h-8 bg-slate-50 w-full"
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium"
+            className="text-xs h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium flex-1 sm:flex-initial"
           >
             <option value="all">All Statuses</option>
             <option value="open">Open</option>
@@ -229,7 +231,7 @@ export function SupportAdminView({
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="text-xs h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium"
+            className="text-xs h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-medium flex-1 sm:flex-initial"
           >
             <option value="all">All Categories</option>
             <option value="wallet">Wallet & Financials</option>
@@ -247,7 +249,7 @@ export function SupportAdminView({
       {/* Main Two Column Desk */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Ticket Queue */}
-        <Card className="border-slate-200 bg-white shadow-xs overflow-hidden md:col-span-1">
+        <Card className={`border-slate-200 bg-white shadow-xs overflow-hidden md:col-span-1 ${showMobileDetail ? "hidden md:block" : "block"}`}>
           <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Support Queue ({filteredTickets.length})
@@ -264,7 +266,10 @@ export function SupportAdminView({
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => setSelectedTicketId(t.id)}
+                  onClick={() => {
+                    setSelectedTicketId(t.id);
+                    setShowMobileDetail(true);
+                  }}
                   className={`w-full text-left p-3.5 transition-colors block ${
                     t.id === selectedTicketId
                       ? "bg-blue-50/70 border-l-4 border-blue-600"
@@ -297,11 +302,20 @@ export function SupportAdminView({
         </Card>
 
         {/* Right: Staff Discussion & Action Panel */}
-        <Card className="border-slate-200 bg-white shadow-xs md:col-span-2 flex flex-col justify-between min-h-[550px]">
+        <Card className={`border-slate-200 bg-white shadow-xs md:col-span-2 flex flex-col justify-between min-h-[550px] ${!showMobileDetail ? "hidden md:flex" : "flex"}`}>
           {activeTicket ? (
             <>
               {/* Ticket Administrative Topbar */}
               <div className="p-4 border-b border-slate-100 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setShowMobileDetail(false)}
+                  className="md:hidden flex items-center gap-1.5 text-xs text-blue-600 font-semibold mb-2 hover:underline"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Back to Support Queue</span>
+                </button>
+
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="flex items-center gap-2">
@@ -389,7 +403,7 @@ export function SupportAdminView({
 
               {/* Staff Reply Form */}
               <form onSubmit={handlePostStaffReply} className="p-4 border-t border-slate-100 bg-slate-50/60">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <Input
                     required
                     value={replyText}
@@ -400,10 +414,10 @@ export function SupportAdminView({
                   <Button
                     type="submit"
                     disabled={isPending || !replyText.trim()}
-                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs h-9 px-4 gap-1 shrink-0"
+                    className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs h-9 px-4 gap-1 shrink-0 justify-center"
                   >
                     <Send className="h-3 w-3" />
-                    Send Staff Reply
+                    <span>Send Staff Reply</span>
                   </Button>
                 </div>
               </form>

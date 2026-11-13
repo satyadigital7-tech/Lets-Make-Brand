@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -59,6 +59,12 @@ const ICON_MAP: Record<string, LucideIcon> = {
 export function DashboardSidebar({ user }: DashboardSidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpen = () => setMobileOpen(true);
+    window.addEventListener("open-dashboard-sidebar", handleOpen);
+    return () => window.removeEventListener("open-dashboard-sidebar", handleOpen);
+  }, []);
 
   const roleConfig = ROLE_CONFIGS[user.primaryRole] || ROLE_CONFIGS.independent_partner;
 

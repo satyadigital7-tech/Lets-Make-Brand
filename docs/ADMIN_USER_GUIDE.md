@@ -53,3 +53,4 @@ The Lets Make Brand platform provides two administrative tiers:
 - View tickets categorized by `campaign`, `commission`, `technical`, `kyc`, or `other`.
 - Assign tickets to specific administrators.
 - Respond with threaded messages and update status: `open` $\to$ `in_progress` $\to$ `waiting_user` $\to$ `resolved` $\to$ `closed`.
+

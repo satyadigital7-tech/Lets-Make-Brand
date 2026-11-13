@@ -54,3 +54,4 @@ The database is built on **Supabase PostgreSQL 15+** adhering to:
 
 - **`public.view_wallet_reconciliation`**: Real-time view asserting that `computed_available = total_earnings - reserved_balance - total_withdrawn`.
 - **`public.check_system_financial_integrity()`**: Automated plpgsql function validating zero negative balances and zero wallet discrepancies.
+

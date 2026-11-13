@@ -157,7 +157,7 @@ export function VendorWalletView({
       )}
 
       {/* KPI Cards (Module 3) */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
         <Card className="border-slate-200 bg-white shadow-xs">
           <CardContent className="p-3.5">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
@@ -247,7 +247,7 @@ export function VendorWalletView({
           size="sm"
           onClick={handleOpenModal}
           disabled={wallet.availableBalance < minThreshold || isPending}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold gap-1.5 shadow"
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold gap-1.5 shadow"
         >
           <ArrowUpRight className="h-4 w-4" />
           <span>Request Agency Payout</span>
@@ -451,7 +451,7 @@ export function VendorWalletView({
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-xs font-semibold text-slate-700 block mb-1">
                       IFSC Code *

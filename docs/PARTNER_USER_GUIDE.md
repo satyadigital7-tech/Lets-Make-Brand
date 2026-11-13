@@ -57,3 +57,4 @@ Whether you join as an **Independent Partner** or as a **Vendor Squad Team Membe
 
 - **LMB Partner ID Card:** Generate and download your official vector PDF ID card with your unique LMB code and QR code.
 - **Appointment Letter:** Download your official formal Partner Engagement Agreement with company letterhead.
+

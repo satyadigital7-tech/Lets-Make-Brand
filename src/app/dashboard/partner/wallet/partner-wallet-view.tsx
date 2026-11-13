@@ -235,7 +235,7 @@ export function PartnerWalletView({
       )}
 
       {/* KPI Cards (Module 2) */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <Card className="border-slate-200 bg-white shadow-xs">
           <CardContent className="p-3.5">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
@@ -309,12 +309,12 @@ export function PartnerWalletView({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
           <Button
             size="sm"
             onClick={handleOpenWithdrawModal}
             disabled={wallet.availableBalance < minThreshold || isPending}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1.5 shadow"
+            className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold gap-1.5 shadow"
           >
             <ArrowUpRight className="h-4 w-4" />
             <span>Request Withdrawal</span>
@@ -677,7 +677,7 @@ export function PartnerWalletView({
                         className="text-xs font-mono"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
                         <label className="text-xs font-semibold text-slate-700 block mb-1">
                           IFSC Code *
@@ -838,7 +838,7 @@ export function PartnerWalletView({
                         className="text-xs font-mono"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <div>
                         <label className="text-xs font-semibold text-slate-700 block mb-1">
                           IFSC Code *
