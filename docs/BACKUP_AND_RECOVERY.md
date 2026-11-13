@@ -108,3 +108,4 @@ aws s3 sync s3://lmb-backup-vault/kyc-documents/ s3://kyc-documents/ \
 - [ ] Verify Supabase Auth user table mapping (`auth.users` -> `public.profiles`).
 - [ ] Verify signed URL resolution for KYC documents: `/api/storage/kyc-documents/[path]`.
 - [ ] Check API Health status: `curl https://letsmakebrand.co.in/api/health`.
+

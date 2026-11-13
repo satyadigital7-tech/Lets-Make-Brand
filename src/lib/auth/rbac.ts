@@ -98,7 +98,7 @@ export const ROLE_CONFIGS: Record<UserRoleCode, RoleConfig> = {
     navigation: [
       { title: "Overview", href: "/dashboard/partner", iconName: "LayoutDashboard", isPhase1Ready: true },
       { title: "Campaign Catalog", href: "/dashboard/partner/campaigns", iconName: "Megaphone", isPhase1Ready: true },
-      { title: "Promotional Links", href: "/dashboard/partner/links", iconName: "Link2", badge: "Phase 2", isPhase1Ready: false },
+      { title: "Promotional Links", href: "/dashboard/partner/links", iconName: "Link2", isPhase1Ready: true },
       { title: "Submitted Leads", href: "/dashboard/partner/leads", iconName: "Filter", isPhase1Ready: true },
       { title: "Commission Accruals", href: "/dashboard/partner/commission", iconName: "Percent", isPhase1Ready: true },
       { title: "My Wallet", href: "/dashboard/partner/wallet", iconName: "Wallet", isPhase1Ready: true },
@@ -115,7 +115,7 @@ export const ROLE_CONFIGS: Record<UserRoleCode, RoleConfig> = {
     navigation: [
       { title: "Overview", href: "/dashboard/partner", iconName: "LayoutDashboard", isPhase1Ready: true },
       { title: "Campaign Catalog", href: "/dashboard/partner/campaigns", iconName: "Megaphone", isPhase1Ready: true },
-      { title: "Promotional Links", href: "/dashboard/partner/links", iconName: "Link2", badge: "Phase 2", isPhase1Ready: false },
+      { title: "Promotional Links", href: "/dashboard/partner/links", iconName: "Link2", isPhase1Ready: true },
       { title: "Submitted Leads", href: "/dashboard/partner/leads", iconName: "Filter", isPhase1Ready: true },
       { title: "Commission Accruals", href: "/dashboard/partner/commission", iconName: "Percent", isPhase1Ready: true },
       { title: "My Wallet", href: "/dashboard/partner/wallet", iconName: "Wallet", isPhase1Ready: true },

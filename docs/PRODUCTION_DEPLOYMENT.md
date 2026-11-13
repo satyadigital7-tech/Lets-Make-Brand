@@ -74,3 +74,4 @@ In **Supabase Dashboard → Storage → Buckets**:
 - [x] Health check endpoint active at `/api/health`.
 - [x] HTTP Security headers enforced in `vercel.json`.
 - [x] Financial ledger reconciliation engine operational.
+
