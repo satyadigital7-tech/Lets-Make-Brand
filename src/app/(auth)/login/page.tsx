@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { createClient } from "@/lib/supabase/client";
 import { loginSchema, LoginFormData } from "@/lib/security/validation";
+import { loginAction } from "./actions";
 
 function LoginForm() {
   const router = useRouter();
@@ -50,28 +50,16 @@ function LoginForm() {
 
     setIsLoading(true);
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      const res = await loginAction(formData);
 
-      if (error) {
-        if (error.message.toLowerCase().includes("invalid login credentials")) {
-          setServerError("Invalid email address or password. Please verify your credentials.");
-        } else if (error.message.toLowerCase().includes("email not confirmed")) {
-          setServerError("Please verify your email address before signing in. Check your inbox for the confirmation link.");
-        } else {
-          setServerError(error.message);
-        }
+      if (!res.success) {
+        setServerError(res.error || "Authentication failed.");
         setIsLoading(false);
         return;
       }
 
-      if (data.user) {
-        router.push(redirectTo);
-        router.refresh();
-      }
+      router.push(redirectTo);
+      router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected authentication error occurred.";
       setServerError(message);

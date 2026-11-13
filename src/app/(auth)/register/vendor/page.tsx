@@ -20,8 +20,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { createClient } from "@/lib/supabase/client";
 import { vendorRegisterSchema, VendorRegisterFormData } from "@/lib/security/validation";
+import { registerVendorAction } from "../actions";
 
 export default function VendorRegisterPage() {
   const router = useRouter();
@@ -63,30 +63,10 @@ export default function VendorRegisterPage() {
 
     setIsLoading(true);
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            business_name: formData.businessName,
-            company_name: formData.businessName,
-            mobile: formData.mobile,
-            phone: formData.mobile,
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            pincode: formData.pincode,
-            profile_photo_url: formData.profilePhotoUrl || null,
-            role: "vendor",
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
+      const res = await registerVendorAction(formData);
 
-      if (error) {
-        setServerError(error.message);
+      if (!res.success) {
+        setServerError(res.error || "Vendor registration failed.");
         setIsLoading(false);
         return;
       }

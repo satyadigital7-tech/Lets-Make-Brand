@@ -25,6 +25,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { partnerRegisterSchema, PartnerRegisterFormData } from "@/lib/security/validation";
+import { registerPartnerAction } from "../actions";
 
 function PartnerRegisterForm() {
   const router = useRouter();
@@ -99,34 +100,10 @@ function PartnerRegisterForm() {
 
     setIsLoading(true);
     try {
-      const supabase = createClient();
-      const isTeamMember = Boolean(formData.invitationToken);
+      const res = await registerPartnerAction(formData);
 
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            mobile: formData.mobile,
-            phone: formData.mobile,
-            dob: formData.dob,
-            gender: formData.gender,
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            pincode: formData.pincode,
-            profile_photo_url: formData.profilePhotoUrl || null,
-            referral_code: formData.referralCode || null,
-            registration_type: isTeamMember ? "team_member" : "independent",
-            role: "independent_partner",
-          },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) {
-        setServerError(error.message);
+      if (!res.success) {
+        setServerError(res.error || "Partner registration failed.");
         setIsLoading(false);
         return;
       }
