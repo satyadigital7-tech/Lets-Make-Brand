@@ -1,7 +1,7 @@
 import React from "react";
 import { Users, Mail } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPartnersPage() {
   await requireRole(["admin", "super_admin"]);
-  const adminClient = createAdminClient();
+  const adminClient = await getAdminOrSessionClient();
 
   const { data } = await adminClient
     .from("user_roles")

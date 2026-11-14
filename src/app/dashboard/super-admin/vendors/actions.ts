@@ -2,24 +2,25 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { hasPermission } from "@/lib/auth/permissions";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { logAuditEvent } from "@/lib/security/audit";
 
 /**
- * Generate unique server-side Vendor ID (e.g. LMB-VEN-000001)
+ * Generate unique sequential server-side Vendor ID (e.g. LMB-VEN-000001)
  */
-async function getNextVendorIdCode(adminClient: ReturnType<typeof createAdminClient>): Promise<string> {
+async function getNextVendorIdCode(db: any): Promise<string> {
   try {
-    const { data, error } = await adminClient.rpc("generate_vendor_id");
+    const { data, error } = await db.rpc("generate_vendor_id");
     if (!error && data && typeof data === "string") {
       return data;
     }
   } catch {
-    // Fallback if RPC is not yet applied in active connection
+    // Fallback if RPC is not deployed in active connection
   }
 
   // Safe fallback sequence generator
-  const { data: latestVendor } = await adminClient
+  const { data: latestVendor } = await db
     .from("profiles")
     .select("vendor_id_code")
     .not("vendor_id_code", "is", null)
@@ -39,11 +40,15 @@ async function getNextVendorIdCode(adminClient: ReturnType<typeof createAdminCli
 }
 
 export async function approveVendorAction(vendorUserId: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_vendors")) {
+    throw new Error("Unauthorized: You do not possess permission to approve vendor applications.");
+  }
+
+  const db = await getAdminOrSessionClient();
 
   // Check current profile
-  const { data: profile, error: fetchErr } = await adminClient
+  const { data: profile, error: fetchErr } = await db
     .from("profiles")
     .select("id, email, full_name, status, vendor_id_code")
     .eq("id", vendorUserId)
@@ -56,10 +61,10 @@ export async function approveVendorAction(vendorUserId: string) {
   // If already has vendor_id_code, keep it, otherwise generate a new one
   let vendorIdCode = profile.vendor_id_code;
   if (!vendorIdCode) {
-    vendorIdCode = await getNextVendorIdCode(adminClient);
+    vendorIdCode = await getNextVendorIdCode(db);
   }
 
-  const { error: updateErr } = await adminClient
+  const { error: updateErr } = await db
     .from("profiles")
     .update({
       vendor_id_code: vendorIdCode,
@@ -74,16 +79,16 @@ export async function approveVendorAction(vendorUserId: string) {
     throw new Error(`Failed to approve vendor: ${updateErr.message}`);
   }
 
-  // Trigger document generation workflow simulation & audit log
+  // Record audit log
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "VENDOR_APPROVED",
     entityType: "profiles",
     entityId: vendorUserId,
     details: {
       vendorUserId,
       vendorIdCode,
-      approvedBy: currentSuperAdmin.id,
+      approvedBy: currentUser.id,
       workflow: "DOCUMENT_GENERATION_TRIGGERED",
       documentType: "VENDOR_ONBOARDING_KIT",
       timestamp: new Date().toISOString(),
@@ -92,18 +97,23 @@ export async function approveVendorAction(vendorUserId: string) {
 
   revalidatePath("/dashboard/super-admin/vendors");
   revalidatePath("/dashboard/super-admin/approvals");
+  revalidatePath("/dashboard/admin/vendors");
   return { success: true, vendorIdCode };
 }
 
 export async function rejectVendorAction(vendorUserId: string, reason: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_vendors")) {
+    throw new Error("Unauthorized: You do not possess permission to reject vendor applications.");
+  }
+
+  const db = await getAdminOrSessionClient();
 
   if (!reason || reason.trim().length === 0) {
     throw new Error("A rejection reason is required.");
   }
 
-  const { error } = await adminClient
+  const { error } = await db
     .from("profiles")
     .update({
       status: "rejected",
@@ -117,25 +127,72 @@ export async function rejectVendorAction(vendorUserId: string, reason: string) {
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "VENDOR_REJECTED",
     entityType: "profiles",
     entityId: vendorUserId,
     details: {
       vendorUserId,
       reason: reason.trim(),
-      rejectedBy: currentSuperAdmin.id,
+      rejectedBy: currentUser.id,
     },
   });
 
   revalidatePath("/dashboard/super-admin/vendors");
   revalidatePath("/dashboard/super-admin/approvals");
+  revalidatePath("/dashboard/admin/vendors");
+  return { success: true };
+}
+
+export async function requestVendorCorrectionAction(vendorUserId: string, notes: string) {
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_vendors")) {
+    throw new Error("Unauthorized: You do not possess permission to request corrections.");
+  }
+
+  const db = await getAdminOrSessionClient();
+
+  if (!notes || notes.trim().length === 0) {
+    throw new Error("Correction instructions are required.");
+  }
+
+  const { error } = await db
+    .from("profiles")
+    .update({
+      rejection_reason: `[CORRECTION_REQUESTED]: ${notes.trim()}`,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", vendorUserId);
+
+  if (error) {
+    throw new Error(`Failed to record correction request: ${error.message}`);
+  }
+
+  await logAuditEvent({
+    userId: currentUser.id,
+    action: "VENDOR_CORRECTION_REQUESTED",
+    entityType: "profiles",
+    entityId: vendorUserId,
+    details: {
+      vendorUserId,
+      notes: notes.trim(),
+      requestedBy: currentUser.id,
+    },
+  });
+
+  revalidatePath("/dashboard/super-admin/vendors");
+  revalidatePath("/dashboard/super-admin/approvals");
+  revalidatePath("/dashboard/admin/vendors");
   return { success: true };
 }
 
 export async function suspendVendorAction(vendorUserId: string, reason: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_vendors")) {
+    throw new Error("Unauthorized: You do not possess permission to suspend vendors.");
+  }
+
+  const db = await getAdminOrSessionClient();
 
   if (!reason || reason.trim().length === 0) {
     throw new Error("A suspension reason is required.");
@@ -143,7 +200,7 @@ export async function suspendVendorAction(vendorUserId: string, reason: string) 
 
   // LIFECYCLE RULE (Module 9):
   // Suspend ONLY the vendor account. Do NOT suspend team leaders or team members!
-  const { error } = await adminClient
+  const { error } = await db
     .from("profiles")
     .update({
       status: "suspended",
@@ -157,27 +214,32 @@ export async function suspendVendorAction(vendorUserId: string, reason: string) 
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "VENDOR_SUSPENDED",
     entityType: "profiles",
     entityId: vendorUserId,
     details: {
       vendorUserId,
       reason: reason.trim(),
-      suspendedBy: currentSuperAdmin.id,
+      suspendedBy: currentUser.id,
       lifecyclePolicy: "TEAM_MEMBERS_PRESERVED_AS_PER_MODULE_9",
     },
   });
 
   revalidatePath("/dashboard/super-admin/vendors");
+  revalidatePath("/dashboard/admin/vendors");
   return { success: true };
 }
 
 export async function deactivateVendorAction(vendorUserId: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_vendors")) {
+    throw new Error("Unauthorized: You do not possess permission to deactivate vendors.");
+  }
 
-  const { error } = await adminClient
+  const db = await getAdminOrSessionClient();
+
+  const { error } = await db
     .from("profiles")
     .update({
       status: "inactive",
@@ -190,17 +252,17 @@ export async function deactivateVendorAction(vendorUserId: string) {
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "VENDOR_DEACTIVATED",
     entityType: "profiles",
     entityId: vendorUserId,
     details: {
       vendorUserId,
-      deactivatedBy: currentSuperAdmin.id,
+      deactivatedBy: currentUser.id,
     },
   });
 
   revalidatePath("/dashboard/super-admin/vendors");
+  revalidatePath("/dashboard/admin/vendors");
   return { success: true };
 }
-

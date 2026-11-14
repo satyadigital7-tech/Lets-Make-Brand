@@ -1,12 +1,12 @@
 import React from "react";
 import { requireRole } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
 import { VendorManager, VendorItem } from "./vendor-manager";
 
 export default async function SuperAdminVendorsPage() {
   await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const adminClient = await getAdminOrSessionClient();
 
   // 1. Fetch all users with 'vendor' role
   const { data: vendorUsersData } = await adminClient

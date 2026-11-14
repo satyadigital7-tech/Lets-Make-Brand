@@ -55,7 +55,11 @@ export default function SuperAdminLoginPage() {
       router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Super Admin login failed.";
-      setErrorMessage(msg);
+      const friendlyMessage =
+        msg.toLowerCase().includes("failed to fetch") || msg.toLowerCase().includes("fetch failed")
+          ? "Could not reach authentication servers. Please verify your connection."
+          : msg;
+      setErrorMessage(friendlyMessage);
       setIsLoading(false);
     }
   };

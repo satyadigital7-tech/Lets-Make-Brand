@@ -2,7 +2,7 @@ import React from "react";
 import { Store, Building, AlertTriangle, ShieldCheck } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
 import { canManageVendorTransfers } from "@/lib/auth/permissions";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminVendorsPage() {
   const user = await requireRole(["admin", "super_admin"]);
-  const adminClient = createAdminClient();
+  const adminClient = await getAdminOrSessionClient();
 
   const { data } = await adminClient
     .from("user_roles")

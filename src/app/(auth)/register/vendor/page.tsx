@@ -73,14 +73,30 @@ export default function VendorRegisterPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         });
-        res = await response.json();
+        if (response.ok) {
+          res = await response.json();
+        } else {
+          try {
+            const errData = await response.json();
+            res = { success: false, error: errData.error || `Server responded with status ${response.status}` };
+          } catch {
+            res = { success: false, error: `Server error (${response.status}). Please try again.` };
+          }
+        }
       } catch {
         // Fallback to Server Action if API route is unavailable
-        res = await registerVendorAction(formData);
+        try {
+          res = await registerVendorAction(formData);
+        } catch {
+          res = {
+            success: false,
+            error: "Unable to reach registration server. Please check your internet connection or try again in a moment.",
+          };
+        }
       }
 
       if (!res || !res.success) {
-        setServerError(res?.error || "Vendor registration failed.");
+        setServerError(res?.error || "Vendor registration failed. Please try again.");
         setIsLoading(false);
         return;
       }
@@ -91,7 +107,7 @@ export default function VendorRegisterPage() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Vendor registration failed.";
       const friendlyMessage =
-        message.toLowerCase().includes("failed to fetch")
+        message.toLowerCase().includes("failed to fetch") || message.toLowerCase().includes("fetch failed")
           ? "Could not reach registration servers. Please check your internet connection and try again."
           : message;
       setServerError(friendlyMessage);

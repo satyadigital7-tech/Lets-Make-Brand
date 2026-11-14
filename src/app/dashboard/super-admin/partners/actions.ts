@@ -2,24 +2,25 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { hasPermission } from "@/lib/auth/permissions";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { logAuditEvent } from "@/lib/security/audit";
 
 /**
- * Generate unique server-side Partner ID (e.g. LMB-PAR-000001)
+ * Generate unique sequential server-side Partner ID (e.g. LMB-PAR-000001)
  */
-async function getNextPartnerIdCode(adminClient: ReturnType<typeof createAdminClient>): Promise<string> {
+async function getNextPartnerIdCode(db: any): Promise<string> {
   try {
-    const { data, error } = await adminClient.rpc("generate_partner_id");
+    const { data, error } = await db.rpc("generate_partner_id");
     if (!error && data && typeof data === "string") {
       return data;
     }
   } catch {
-    // Fallback if RPC is not yet applied
+    // Fallback if RPC is not deployed in active connection
   }
 
   // Safe fallback sequence generator
-  const { data: latestPartner } = await adminClient
+  const { data: latestPartner } = await db
     .from("profiles")
     .select("partner_id_code")
     .not("partner_id_code", "is", null)
@@ -39,10 +40,14 @@ async function getNextPartnerIdCode(adminClient: ReturnType<typeof createAdminCl
 }
 
 export async function approvePartnerAction(partnerUserId: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_partners")) {
+    throw new Error("Unauthorized: You do not possess permission to approve partner applications.");
+  }
 
-  const { data: profile, error: fetchErr } = await adminClient
+  const db = await getAdminOrSessionClient();
+
+  const { data: profile, error: fetchErr } = await db
     .from("profiles")
     .select("id, email, full_name, status, partner_id_code")
     .eq("id", partnerUserId)
@@ -54,10 +59,10 @@ export async function approvePartnerAction(partnerUserId: string) {
 
   let partnerIdCode = profile.partner_id_code;
   if (!partnerIdCode) {
-    partnerIdCode = await getNextPartnerIdCode(adminClient);
+    partnerIdCode = await getNextPartnerIdCode(db);
   }
 
-  const { error: updateErr } = await adminClient
+  const { error: updateErr } = await db
     .from("profiles")
     .update({
       partner_id_code: partnerIdCode,
@@ -73,14 +78,14 @@ export async function approvePartnerAction(partnerUserId: string) {
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "PARTNER_APPROVED",
     entityType: "profiles",
     entityId: partnerUserId,
     details: {
       partnerUserId,
       partnerIdCode,
-      approvedBy: currentSuperAdmin.id,
+      approvedBy: currentUser.id,
       workflow: "DOCUMENT_GENERATION_TRIGGERED",
       documentType: "PARTNER_AGREEMENT_KIT",
       timestamp: new Date().toISOString(),
@@ -89,18 +94,23 @@ export async function approvePartnerAction(partnerUserId: string) {
 
   revalidatePath("/dashboard/super-admin/partners");
   revalidatePath("/dashboard/super-admin/approvals");
+  revalidatePath("/dashboard/admin/partners");
   return { success: true, partnerIdCode };
 }
 
 export async function rejectPartnerAction(partnerUserId: string, reason: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_partners")) {
+    throw new Error("Unauthorized: You do not possess permission to reject partner applications.");
+  }
+
+  const db = await getAdminOrSessionClient();
 
   if (!reason || reason.trim().length === 0) {
     throw new Error("A rejection reason is required.");
   }
 
-  const { error } = await adminClient
+  const { error } = await db
     .from("profiles")
     .update({
       status: "rejected",
@@ -114,31 +124,78 @@ export async function rejectPartnerAction(partnerUserId: string, reason: string)
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "PARTNER_REJECTED",
     entityType: "profiles",
     entityId: partnerUserId,
     details: {
       partnerUserId,
       reason: reason.trim(),
-      rejectedBy: currentSuperAdmin.id,
+      rejectedBy: currentUser.id,
     },
   });
 
   revalidatePath("/dashboard/super-admin/partners");
   revalidatePath("/dashboard/super-admin/approvals");
+  revalidatePath("/dashboard/admin/partners");
+  return { success: true };
+}
+
+export async function requestPartnerCorrectionAction(partnerUserId: string, notes: string) {
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_partners")) {
+    throw new Error("Unauthorized: You do not possess permission to request corrections.");
+  }
+
+  const db = await getAdminOrSessionClient();
+
+  if (!notes || notes.trim().length === 0) {
+    throw new Error("Correction instructions are required.");
+  }
+
+  const { error } = await db
+    .from("profiles")
+    .update({
+      rejection_reason: `[CORRECTION_REQUESTED]: ${notes.trim()}`,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", partnerUserId);
+
+  if (error) {
+    throw new Error(`Failed to record correction request: ${error.message}`);
+  }
+
+  await logAuditEvent({
+    userId: currentUser.id,
+    action: "PARTNER_CORRECTION_REQUESTED",
+    entityType: "profiles",
+    entityId: partnerUserId,
+    details: {
+      partnerUserId,
+      notes: notes.trim(),
+      requestedBy: currentUser.id,
+    },
+  });
+
+  revalidatePath("/dashboard/super-admin/partners");
+  revalidatePath("/dashboard/super-admin/approvals");
+  revalidatePath("/dashboard/admin/partners");
   return { success: true };
 }
 
 export async function suspendPartnerAction(partnerUserId: string, reason: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_partners")) {
+    throw new Error("Unauthorized: You do not possess permission to suspend partners.");
+  }
+
+  const db = await getAdminOrSessionClient();
 
   if (!reason || reason.trim().length === 0) {
     throw new Error("A suspension reason is required.");
   }
 
-  const { error } = await adminClient
+  const { error } = await db
     .from("profiles")
     .update({
       status: "suspended",
@@ -152,26 +209,31 @@ export async function suspendPartnerAction(partnerUserId: string, reason: string
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "PARTNER_SUSPENDED",
     entityType: "profiles",
     entityId: partnerUserId,
     details: {
       partnerUserId,
       reason: reason.trim(),
-      suspendedBy: currentSuperAdmin.id,
+      suspendedBy: currentUser.id,
     },
   });
 
   revalidatePath("/dashboard/super-admin/partners");
+  revalidatePath("/dashboard/admin/partners");
   return { success: true };
 }
 
 export async function deactivatePartnerAction(partnerUserId: string) {
-  const currentSuperAdmin = await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const currentUser = await requireRole(["super_admin", "admin"]);
+  if (!currentUser.roles.includes("super_admin") && !hasPermission(currentUser, "manage_partners")) {
+    throw new Error("Unauthorized: You do not possess permission to deactivate partners.");
+  }
 
-  const { error } = await adminClient
+  const db = await getAdminOrSessionClient();
+
+  const { error } = await db
     .from("profiles")
     .update({
       status: "inactive",
@@ -184,17 +246,17 @@ export async function deactivatePartnerAction(partnerUserId: string) {
   }
 
   await logAuditEvent({
-    userId: currentSuperAdmin.id,
+    userId: currentUser.id,
     action: "PARTNER_DEACTIVATED",
     entityType: "profiles",
     entityId: partnerUserId,
     details: {
       partnerUserId,
-      deactivatedBy: currentSuperAdmin.id,
+      deactivatedBy: currentUser.id,
     },
   });
 
   revalidatePath("/dashboard/super-admin/partners");
+  revalidatePath("/dashboard/admin/partners");
   return { success: true };
 }
-

@@ -1,12 +1,12 @@
 import React from "react";
 import { requireRole } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
 import { PartnerManager, PartnerItem } from "./partner-manager";
 
 export default async function SuperAdminPartnersPage() {
   await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const adminClient = await getAdminOrSessionClient();
 
   // Fetch all users with partner roles
   const { data } = await adminClient

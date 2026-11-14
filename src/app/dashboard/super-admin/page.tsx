@@ -21,7 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { requireRole } from "@/lib/auth/session";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminOrSessionClient } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/common/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SuperAdminOverviewPage() {
   await requireRole(["super_admin"]);
-  const adminClient = createAdminClient();
+  const adminClient = await getAdminOrSessionClient();
 
   // 1. Fetch Real Database Counts for all 16 Statistics Cards
   const [
