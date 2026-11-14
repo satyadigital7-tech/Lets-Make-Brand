@@ -25,6 +25,11 @@ import {
   ChevronRight,
   Menu,
   X,
+  Bell,
+  FileText,
+  ShieldCheck,
+  LifeBuoy,
+  Activity,
   LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +59,11 @@ const ICON_MAP: Record<string, LucideIcon> = {
   LineChart,
   CheckCircle2,
   Link2,
+  Bell,
+  FileText,
+  ShieldCheck,
+  LifeBuoy,
+  Activity,
 };
 
 export function DashboardSidebar({ user }: DashboardSidebarProps) {

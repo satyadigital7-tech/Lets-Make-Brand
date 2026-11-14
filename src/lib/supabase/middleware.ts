@@ -54,21 +54,33 @@ export async function updateSession(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  const host = request.headers.get("host") || "";
+  const isAdminSubdomain = host.startsWith("admin.") || host.startsWith("superadmin.");
+
+  // Subdomain routing for admin.letsmakebrand.co.in
+  if (isAdminSubdomain) {
+    if (pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = user ? "/dashboard/super-admin" : "/admin/login";
+      return NextResponse.redirect(url);
+    }
+  }
 
   // Protected route checking: /dashboard/*
   if (pathname.startsWith("/dashboard")) {
     if (!user) {
       const url = request.nextUrl.clone();
-      url.pathname = "/login";
+      // If navigating to super-admin dashboard while unauthenticated, redirect to dedicated admin login
+      url.pathname = pathname.startsWith("/dashboard/super-admin") ? "/admin/login" : "/login";
       url.searchParams.set("redirectTo", pathname);
       return NextResponse.redirect(url);
     }
   }
 
   // Redirect authenticated users away from auth pages
-  if (user && (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password")) {
+  if (user && (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password" || pathname === "/admin/login")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = pathname === "/admin/login" ? "/dashboard/super-admin" : "/dashboard";
     return NextResponse.redirect(url);
   }
 

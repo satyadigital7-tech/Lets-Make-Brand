@@ -4,3 +4,4 @@
  */
 export const DEFAULT_SUPABASE_URL = "https://nircczkfagypcxxxltso.supabase.co";
 export const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_uCI3BLY5QdJwPsIzh0l9WA_naFuM82n";
+
