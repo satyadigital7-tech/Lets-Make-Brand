@@ -44,25 +44,25 @@ export default function ContactPage() {
 
     setIsSubmitting(true);
     try {
-      // Simulate/execute contact dispatch
+      // Simulate contact dispatch
       await new Promise((resolve) => setTimeout(resolve, 800));
       setIsSuccess(true);
     } catch {
-      setServerError("An unexpected error occurred. Please reach out to contact@letsmakebrand.com directly.");
+      setServerError("An unexpected error occurred. Please reach out to contact@letsmakebrand.co.in directly.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="py-16 md:py-24">
+    <div className="py-16 md:py-24 bg-[#F6F8FC]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <Badge variant="brand">Enterprise Assistance</Badge>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#172033] tracking-tight">
             Contact the LMB Operations Team
           </h1>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-[#64748B]">
             Have questions regarding vendor onboarding, partner squad contracts, or technical integration? We are here to help.
           </p>
         </div>
@@ -70,50 +70,50 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Contact Details Card */}
           <div className="space-y-6">
-            <Card className="border-slate-200">
+            <Card className="border-[#E2E8F0] bg-white rounded-xl shadow-sm">
               <CardContent className="p-6 space-y-6">
-                <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+                <h3 className="text-lg font-bold text-[#172033] border-b border-[#E2E8F0] pb-3">
                   Direct Channels
                 </h3>
 
-                <div className="space-y-4 text-xs text-slate-700">
+                <div className="space-y-4 text-xs text-[#172033]">
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                    <div className="p-2 rounded-lg bg-[#EAF2FF] text-[#092B63]">
                       <Mail className="h-4 w-4" />
                     </div>
                     <div>
-                      <span className="font-semibold block text-slate-900">General Inquiries</span>
-                      <a href="mailto:contact@letsmakebrand.com" className="text-blue-600 hover:underline">
-                        contact@letsmakebrand.com
+                      <span className="font-semibold block text-[#172033]">General Inquiries</span>
+                      <a href="mailto:contact@letsmakebrand.co.in" className="text-[#092B63] font-medium hover:underline">
+                        contact@letsmakebrand.co.in
                       </a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+                    <div className="p-2 rounded-lg bg-emerald-50 text-[#16A34A]">
                       <Phone className="h-4 w-4" />
                     </div>
                     <div>
-                      <span className="font-semibold block text-slate-900">Phone Support</span>
-                      <span className="text-slate-600">+1 (800) 562-2726</span>
+                      <span className="font-semibold block text-[#172033]">Corporate Desk</span>
+                      <span className="text-[#64748B]">+91 (800) 562-2726</span>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+                    <div className="p-2 rounded-lg bg-[#EAF2FF] text-[#2563EB]">
                       <MapPin className="h-4 w-4" />
                     </div>
                     <div>
-                      <span className="font-semibold block text-slate-900">Headquarters</span>
-                      <span className="text-slate-600">
-                        Enterprise Way, Tech Corridor, NY 10001
+                      <span className="font-semibold block text-[#172033]">Corporate Headquarters</span>
+                      <span className="text-[#64748B]">
+                        LMB Tower, Financial District, Cyber City, Hyderabad 500081
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 text-xs text-slate-500">
-                  <strong>Operating Hours:</strong> Monday – Friday, 9:00 AM – 6:00 PM EST.
+                <div className="pt-4 border-t border-[#E2E8F0] text-xs text-[#64748B]">
+                  <strong>Operating Hours:</strong> Monday – Friday, 9:00 AM – 6:00 PM IST.
                 </div>
               </CardContent>
             </Card>
@@ -121,17 +121,17 @@ export default function ContactPage() {
 
           {/* Form */}
           <div className="lg:col-span-2">
-            <Card className="border-slate-200">
+            <Card className="border-[#E2E8F0] bg-white rounded-xl shadow-sm">
               <CardContent className="p-6 sm:p-8">
                 {isSuccess ? (
                   <div className="py-8 text-center space-y-4">
-                    <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+                    <div className="h-12 w-12 rounded-full bg-emerald-50 text-[#16A34A] flex items-center justify-center mx-auto">
                       <CheckCircle2 className="h-6 w-6" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900">
+                    <h3 className="text-xl font-bold text-[#172033]">
                       Inquiry Received Successfully
                     </h3>
-                    <p className="text-xs text-slate-600 max-w-md mx-auto">
+                    <p className="text-xs text-[#64748B] max-w-md mx-auto">
                       Thank you for contacting Lets Make Brand. A representative will review your message and reply to {formData.email} within 1 business day.
                     </p>
                     <Button
@@ -192,7 +192,7 @@ export default function ContactPage() {
                         <Label htmlFor="phone">Phone (Optional)</Label>
                         <Input
                           id="phone"
-                          placeholder="+1 (555) 000-0000"
+                          placeholder="+91 98765 43210"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                           error={errors.phone}
@@ -210,7 +210,7 @@ export default function ContactPage() {
                               inquiryType: e.target.value as ContactFormData["inquiryType"],
                             })
                           }
-                          className="flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                          className="flex h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#092B63]"
                         >
                           <option value="partner">Partner Network Application</option>
                           <option value="vendor">Brand Vendor Onboarding</option>
@@ -240,10 +240,10 @@ export default function ContactPage() {
                         placeholder="Provide details about your brand, partner squad, or request..."
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="flex w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:border-transparent transition-colors"
+                        className="flex w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-[#172033] placeholder:text-[#64748B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#092B63] focus-visible:border-transparent transition-colors"
                       />
                       {errors.message && (
-                        <p className="text-xs text-rose-600 font-medium">{errors.message}</p>
+                        <p className="text-xs text-[#DC2626] font-medium">{errors.message}</p>
                       )}
                     </div>
 
@@ -261,4 +261,3 @@ export default function ContactPage() {
     </div>
   );
 }
-

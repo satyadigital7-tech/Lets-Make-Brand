@@ -27,6 +27,8 @@ import { createClient } from "@/lib/supabase/client";
 import { partnerRegisterSchema, PartnerRegisterFormData } from "@/lib/security/validation";
 import { registerPartnerAction } from "../actions";
 
+export const dynamic = "force-dynamic";
+
 function PartnerRegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -100,10 +102,22 @@ function PartnerRegisterForm() {
 
     setIsLoading(true);
     try {
-      const res = await registerPartnerAction(formData);
+      // 1. Primary: Direct standard REST API endpoint (never affected by Next.js static prerendering or Server Action ID mismatches)
+      let res: { success: boolean; error?: string; userId?: string } | null = null;
+      try {
+        const response = await fetch("/api/auth/register-partner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        res = await response.json();
+      } catch {
+        // Fallback to Server Action if API route is unreachable
+        res = await registerPartnerAction(formData);
+      }
 
-      if (!res.success) {
-        setServerError(res.error || "Partner registration failed.");
+      if (!res || !res.success) {
+        setServerError(res?.error || "Partner registration failed.");
         setIsLoading(false);
         return;
       }
@@ -113,21 +127,25 @@ function PartnerRegisterForm() {
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Partner registration failed.";
-      setServerError(message);
+      const friendlyMessage =
+        message.toLowerCase().includes("failed to fetch")
+          ? "Could not reach registration servers. Please check your internet connection and try again."
+          : message;
+      setServerError(friendlyMessage);
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="border-slate-200 shadow-md max-w-2xl mx-auto">
+    <Card className="border-[#E2E8F0] shadow-sm max-w-2xl mx-auto bg-white rounded-xl">
       <CardHeader className="space-y-1.5 pb-4 text-center">
-        <div className="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-1">
+        <div className="h-12 w-12 rounded-xl bg-[#EAF2FF] text-[#092B63] flex items-center justify-center mx-auto mb-1">
           <Users className="h-6 w-6" />
         </div>
-        <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+        <CardTitle className="text-2xl font-bold tracking-tight text-[#172033]">
           Partner Network Registration
         </CardTitle>
-        <CardDescription className="text-xs">
+        <CardDescription className="text-xs text-[#64748B]">
           Join as an Independent Partner or Vendor Squad Member to earn performance commissions
         </CardDescription>
         {invitationInfo && (
@@ -212,7 +230,7 @@ function PartnerRegisterForm() {
                     gender: e.target.value as PartnerRegisterFormData["gender"],
                   })
                 }
-                className="flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                className="flex h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 text-sm text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#092B63]"
               >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -324,23 +342,23 @@ function PartnerRegisterForm() {
           </div>
 
           <div className="pt-1">
-            <label className="flex items-start gap-2 cursor-pointer text-xs text-slate-600">
+            <label className="flex items-start gap-2 cursor-pointer text-xs text-[#64748B]">
               <input
                 type="checkbox"
                 checked={Boolean(formData.termsAccepted)}
                 onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
-                className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 rounded border-[#E2E8F0] text-[#092B63] focus:ring-[#092B63]"
               />
               <span>
                 I agree to the{" "}
-                <Link href="/terms" target="_blank" className="text-blue-600 hover:underline">
+                <Link href="/terms" target="_blank" className="text-[#092B63] font-medium hover:underline">
                   Partner Terms of Service
                 </Link>{" "}
                 and acknowledge account requires Super Admin verification before activation.
               </span>
             </label>
             {errors.termsAccepted && (
-              <p className="mt-1 text-xs text-rose-600 font-medium">{errors.termsAccepted}</p>
+              <p className="mt-1 text-xs text-[#DC2626] font-medium">{errors.termsAccepted}</p>
             )}
           </div>
 
@@ -350,9 +368,9 @@ function PartnerRegisterForm() {
           </Button>
         </form>
 
-        <div className="pt-3 text-center border-t border-slate-100 text-xs text-slate-500">
+        <div className="pt-3 text-center border-t border-[#E2E8F0] text-xs text-[#64748B]">
           Looking to list brand campaigns instead?{" "}
-          <Link href="/register/vendor" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/register/vendor" className="text-[#092B63] font-semibold hover:underline">
             Register as Vendor
           </Link>
         </div>
@@ -363,7 +381,7 @@ function PartnerRegisterForm() {
 
 export default function PartnerRegisterPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading form...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#64748B]">Loading form...</div>}>
       <PartnerRegisterForm />
     </Suspense>
   );

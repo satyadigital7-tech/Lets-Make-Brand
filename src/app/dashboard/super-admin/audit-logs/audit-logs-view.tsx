@@ -277,3 +277,4 @@ export function AuditLogsView({ initialLogs }: AuditLogsViewProps) {
     </div>
   );
 }
+

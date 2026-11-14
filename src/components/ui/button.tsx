@@ -4,26 +4,28 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#092B63] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:bg-blue-800",
-        brand:
-          "bg-slate-900 text-white shadow-sm hover:bg-slate-800 active:bg-black",
-        destructive:
-          "bg-rose-600 text-white shadow-sm hover:bg-rose-700 active:bg-rose-800",
-        outline:
-          "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100",
+          "bg-[#092B63] text-white shadow-sm hover:bg-[#123D82] active:bg-[#071F48]",
         secondary:
-          "bg-slate-100 text-slate-900 hover:bg-slate-200 active:bg-slate-300",
+          "bg-[#2563EB] text-white shadow-sm hover:bg-blue-700 active:bg-blue-800",
+        light:
+          "bg-[#EAF2FF] text-[#092B63] hover:bg-[#D5E5FF] font-bold",
+        brand:
+          "bg-[#092B63] text-white shadow-sm hover:bg-[#123D82]",
+        destructive:
+          "bg-[#DC2626] text-white shadow-sm hover:bg-red-700 active:bg-red-800",
+        outline:
+          "border border-[#E2E8F0] bg-white text-[#172033] hover:bg-[#F6F8FC] hover:text-[#092B63] active:bg-[#EAF2FF]",
         ghost:
-          "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+          "text-[#64748B] hover:bg-[#EAF2FF] hover:text-[#092B63]",
         link:
-          "text-blue-600 underline-offset-4 hover:underline",
+          "text-[#2563EB] underline-offset-4 hover:underline",
         success:
-          "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800",
+          "bg-[#16A34A] text-white shadow-sm hover:bg-emerald-700 active:bg-emerald-800",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -63,4 +65,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

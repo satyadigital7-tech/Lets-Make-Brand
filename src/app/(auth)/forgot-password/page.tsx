@@ -11,6 +11,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { forgotPasswordSchema, ForgotPasswordFormData } from "@/lib/security/validation";
 
+export const dynamic = "force-dynamic";
+
 export default function ForgotPasswordPage() {
   const [formData, setFormData] = useState<ForgotPasswordFormData>({ email: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,19 +51,23 @@ export default function ForgotPasswordPage() {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Password reset request failed.";
-      setServerError(message);
+      setServerError(
+        message.toLowerCase().includes("failed to fetch")
+          ? "Could not reach authentication servers. Please verify your connection and try again."
+          : message
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="border-slate-200 shadow-md">
+    <Card className="border-[#E2E8F0] shadow-sm bg-white rounded-xl">
       <CardHeader className="space-y-1.5 pb-5">
-        <CardTitle className="text-2xl font-bold tracking-tight text-center">
+        <CardTitle className="text-2xl font-bold tracking-tight text-center text-[#172033]">
           Reset Your Password
         </CardTitle>
-        <CardDescription className="text-center text-xs">
+        <CardDescription className="text-center text-xs text-[#64748B]">
           Enter your registered email and we will send you a password reset link
         </CardDescription>
       </CardHeader>
@@ -69,13 +75,13 @@ export default function ForgotPasswordPage() {
       <CardContent className="space-y-4">
         {isSuccess ? (
           <div className="py-4 text-center space-y-4">
-            <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+            <div className="h-12 w-12 rounded-full bg-emerald-50 text-[#16A34A] flex items-center justify-center mx-auto">
               <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-bold text-[#172033]">
               Reset Link Dispatched
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
+            <p className="text-xs text-[#64748B] leading-relaxed max-w-sm mx-auto">
               If an account exists for <strong>{formData.email}</strong>, a secure password reset link has been dispatched to your inbox.
             </p>
             <div className="pt-2">
@@ -119,7 +125,7 @@ export default function ForgotPasswordPage() {
             <div className="pt-2 text-center">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 font-medium"
+                className="inline-flex items-center gap-1.5 text-xs text-[#64748B] hover:text-[#092B63] font-medium"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 <span>Back to Sign In</span>
@@ -131,4 +137,3 @@ export default function ForgotPasswordPage() {
     </Card>
   );
 }
-

@@ -5,10 +5,7 @@ import {
   TrendingUp,
   ArrowRight,
   ShieldCheck,
-  Zap,
-  Users2,
   DollarSign,
-  Briefcase,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +30,7 @@ export default function BecomePartnerPage() {
         "Zero registration fees or hidden costs",
       ],
       ctaText: "Join as Independent Partner",
-      ctaHref: "/register?role=independent_partner",
+      ctaHref: "/register/partner",
       isPrimary: true,
     },
     {
@@ -54,20 +51,20 @@ export default function BecomePartnerPage() {
   ];
 
   return (
-    <div className="py-16 md:py-24">
+    <div className="py-16 md:py-24 bg-[#F6F8FC]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16">
         {/* Hero */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <Badge variant="brand">High-Performance Partner Network</Badge>
-          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">
+          <h1 className="text-4xl font-extrabold text-[#172033] tracking-tight sm:text-5xl">
             Promote Premier Brands & Maximize Your Commission Yield
           </h1>
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
+          <p className="text-base sm:text-lg text-[#64748B] leading-relaxed">
             Stop losing commissions to ambiguous tracking and delayed payouts. 
             LMB delivers real-time ledger accounting, verified vendor escrow, and enterprise brand deals.
           </p>
           <div className="pt-2">
-            <Link href="/register?role=independent_partner">
+            <Link href="/register/partner">
               <Button size="lg" className="font-semibold shadow-sm">
                 <span>Start Promoting Today</span>
                 <ArrowRight className="h-4 w-4 ml-2" />
@@ -78,37 +75,37 @@ export default function BecomePartnerPage() {
 
         {/* Benefits Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="border-slate-200">
+          <Card className="border-[#E2E8F0] bg-white rounded-xl shadow-sm">
             <CardContent className="p-8 space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EAF2FF] text-[#092B63]">
                 <DollarSign className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">Guaranteed Escrow Funding</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                All campaigns on LMB must maintain pre-funded budgets, guaranteeing you are paid promptly upon verified lead delivery.
+              <h3 className="text-lg font-bold text-[#172033]">Guaranteed Escrow Funding</h3>
+              <p className="text-xs text-[#64748B] leading-relaxed">
+                All campaigns on LMB maintain pre-funded budgets, guaranteeing you are paid promptly upon verified lead delivery.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200">
+          <Card className="border-[#E2E8F0] bg-white rounded-xl shadow-sm">
             <CardContent className="p-8 space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-[#16A34A]">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">Cryptographic Attribution</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="text-lg font-bold text-[#172033]">Cryptographic Attribution</h3>
+              <p className="text-xs text-[#64748B] leading-relaxed">
                 Every click, lead submission, and conversion is registered in PostgreSQL with zero intermediary attribution skimming.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200">
+          <Card className="border-[#E2E8F0] bg-white rounded-xl shadow-sm">
             <CardContent className="p-8 space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EAF2FF] text-[#2563EB]">
                 <TrendingUp className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">Tiered Commission Bonuses</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="text-lg font-bold text-[#172033]">Tiered Commission Bonuses</h3>
+              <p className="text-xs text-[#64748B] leading-relaxed">
                 Scale your earnings with performance milestone bonuses, VIP brand access, and higher rev-share tiers.
               </p>
             </CardContent>
@@ -118,10 +115,10 @@ export default function BecomePartnerPage() {
         {/* Tracks Comparison */}
         <div className="space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-2">
-            <h2 className="text-2xl font-extrabold text-slate-900">
+            <h2 className="text-2xl font-extrabold text-[#172033]">
               Select Your Partner Track
             </h2>
-            <p className="text-slate-500 text-xs">
+            <p className="text-[#64748B] text-xs">
               Whether you are an independent promoter or run a 50-person agency squad.
             </p>
           </div>
@@ -130,27 +127,27 @@ export default function BecomePartnerPage() {
             {tiers.map((tier) => (
               <Card
                 key={tier.role}
-                className={`border-2 p-2 flex flex-col justify-between ${
+                className={`border-2 p-2 flex flex-col justify-between bg-white rounded-xl ${
                   tier.isPrimary
-                    ? "border-blue-600 shadow-md ring-1 ring-blue-600/20"
-                    : "border-slate-200"
+                    ? "border-[#092B63] shadow-md ring-2 ring-[#092B63]/10"
+                    : "border-[#E2E8F0] shadow-sm"
                 }`}
               >
                 <CardContent className="p-6 space-y-6">
                   <div className="space-y-2">
-                    <Badge variant={tier.isPrimary ? "brand" : "secondary"}>
+                    <Badge variant={tier.isPrimary ? "default" : "outline"}>
                       {tier.badge}
                     </Badge>
-                    <h3 className="text-2xl font-bold text-slate-900">{tier.role}</h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <h3 className="text-2xl font-bold text-[#172033]">{tier.role}</h3>
+                    <p className="text-xs text-[#64748B] leading-relaxed">
                       {tier.description}
                     </p>
                   </div>
 
-                  <ul className="space-y-2.5 pt-2 border-t border-slate-100">
+                  <ul className="space-y-2.5 pt-2 border-t border-[#E2E8F0]">
                     {tier.features.map((feat) => (
-                      <li key={feat} className="flex items-center gap-2 text-xs text-slate-700">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <li key={feat} className="flex items-center gap-2 text-xs text-[#172033]">
+                        <CheckCircle2 className="h-4 w-4 text-[#16A34A] shrink-0" />
                         <span>{feat}</span>
                       </li>
                     ))}
@@ -175,4 +172,3 @@ export default function BecomePartnerPage() {
     </div>
   );
 }
-

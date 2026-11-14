@@ -368,3 +368,4 @@ export function NotificationsAdminView({ initialNotifications }: NotificationsAd
     </div>
   );
 }
+

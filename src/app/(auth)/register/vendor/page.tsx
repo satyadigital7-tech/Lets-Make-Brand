@@ -23,6 +23,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { vendorRegisterSchema, VendorRegisterFormData } from "@/lib/security/validation";
 import { registerVendorAction } from "../actions";
 
+export const dynamic = "force-dynamic";
+
 export default function VendorRegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<VendorRegisterFormData>({
@@ -63,10 +65,22 @@ export default function VendorRegisterPage() {
 
     setIsLoading(true);
     try {
-      const res = await registerVendorAction(formData);
+      // 1. Primary: Direct standard REST API endpoint (never affected by Next.js static prerendering or Server Action ID mismatches)
+      let res: { success: boolean; error?: string; userId?: string } | null = null;
+      try {
+        const response = await fetch("/api/auth/register-vendor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        res = await response.json();
+      } catch {
+        // Fallback to Server Action if API route is unavailable
+        res = await registerVendorAction(formData);
+      }
 
-      if (!res.success) {
-        setServerError(res.error || "Vendor registration failed.");
+      if (!res || !res.success) {
+        setServerError(res?.error || "Vendor registration failed.");
         setIsLoading(false);
         return;
       }
@@ -76,21 +90,25 @@ export default function VendorRegisterPage() {
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Vendor registration failed.";
-      setServerError(message);
+      const friendlyMessage =
+        message.toLowerCase().includes("failed to fetch")
+          ? "Could not reach registration servers. Please check your internet connection and try again."
+          : message;
+      setServerError(friendlyMessage);
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="border-slate-200 shadow-md max-w-2xl mx-auto">
+    <Card className="border-[#E2E8F0] shadow-sm max-w-2xl mx-auto bg-white rounded-xl">
       <CardHeader className="space-y-1.5 pb-4 text-center">
-        <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-1">
+        <div className="h-12 w-12 rounded-xl bg-[#EAF2FF] text-[#092B63] flex items-center justify-center mx-auto mb-1">
           <Store className="h-6 w-6" />
         </div>
-        <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+        <CardTitle className="text-2xl font-bold tracking-tight text-[#172033]">
           Brand Vendor Registration
         </CardTitle>
-        <CardDescription className="text-xs">
+        <CardDescription className="text-xs text-[#64748B]">
           Register your brand to publish performance campaigns and recruit verified partner squads
         </CardDescription>
       </CardHeader>
@@ -246,23 +264,23 @@ export default function VendorRegisterPage() {
           </div>
 
           <div className="pt-1">
-            <label className="flex items-start gap-2 cursor-pointer text-xs text-slate-600">
+            <label className="flex items-start gap-2 cursor-pointer text-xs text-[#64748B]">
               <input
                 type="checkbox"
                 checked={Boolean(formData.termsAccepted)}
                 onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
-                className="mt-0.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 rounded border-[#E2E8F0] text-[#092B63] focus:ring-[#092B63]"
               />
               <span>
                 I agree to the{" "}
-                <Link href="/terms" target="_blank" className="text-blue-600 hover:underline">
+                <Link href="/terms" target="_blank" className="text-[#092B63] font-medium hover:underline">
                   Vendor Compliance Agreement
                 </Link>{" "}
                 and acknowledge account requires Super Admin approval before activation.
               </span>
             </label>
             {errors.termsAccepted && (
-              <p className="mt-1 text-xs text-rose-600 font-medium">{errors.termsAccepted}</p>
+              <p className="mt-1 text-xs text-[#DC2626] font-medium">{errors.termsAccepted}</p>
             )}
           </div>
 
@@ -272,9 +290,9 @@ export default function VendorRegisterPage() {
           </Button>
         </form>
 
-        <div className="pt-3 text-center border-t border-slate-100 text-xs text-slate-500">
+        <div className="pt-3 text-center border-t border-[#E2E8F0] text-xs text-[#64748B]">
           Want to promote brands instead?{" "}
-          <Link href="/register/partner" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/register/partner" className="text-[#092B63] font-semibold hover:underline">
             Register as Partner
           </Link>
         </div>
@@ -282,4 +300,3 @@ export default function VendorRegisterPage() {
     </Card>
   );
 }
-

@@ -3,9 +3,10 @@
 import React, { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Store, Users, ArrowRight, ShieldCheck } from "lucide-react";
+import { Store, Users, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
+export const dynamic = "force-dynamic";
 
 function RegisterChoice() {
   const searchParams = useSearchParams();
@@ -13,12 +14,12 @@ function RegisterChoice() {
   const ref = searchParams.get("ref");
 
   return (
-    <Card className="border-slate-200 shadow-md max-w-xl mx-auto">
+    <Card className="border-[#E2E8F0] shadow-sm max-w-xl mx-auto bg-white rounded-xl">
       <CardHeader className="text-center pb-4">
-        <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+        <CardTitle className="text-2xl font-bold tracking-tight text-[#172033]">
           Join Lets Make Brand (LMB)
         </CardTitle>
-        <CardDescription className="text-xs">
+        <CardDescription className="text-xs text-[#64748B]">
           Select your registration track to begin the verified onboarding workflow
         </CardDescription>
       </CardHeader>
@@ -28,18 +29,18 @@ function RegisterChoice() {
           {/* Vendor Track */}
           <Link
             href="/register/vendor"
-            className="group p-5 rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:shadow-md transition-all flex flex-col justify-between"
+            className="group p-5 rounded-xl border border-[#E2E8F0] bg-white hover:border-[#092B63] hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div className="space-y-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
+              <div className="h-10 w-10 rounded-lg bg-[#EAF2FF] text-[#092B63] flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
                 <Store className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900">Brand Vendor</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <h3 className="font-bold text-base text-[#172033]">Brand Vendor</h3>
+              <p className="text-xs text-[#64748B] leading-relaxed">
                 Publish high-converting brand campaigns, manage promotional squads, and expand your customer acquisition.
               </p>
             </div>
-            <div className="pt-4 flex items-center text-xs font-semibold text-blue-600 group-hover:underline">
+            <div className="pt-4 flex items-center text-xs font-semibold text-[#092B63] group-hover:underline">
               <span>Continue as Vendor</span>
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </div>
@@ -48,27 +49,27 @@ function RegisterChoice() {
           {/* Partner Track */}
           <Link
             href={invite ? `/register/partner?invite=${encodeURIComponent(invite)}` : ref ? `/register/partner?ref=${encodeURIComponent(ref)}` : "/register/partner"}
-            className="group p-5 rounded-xl border border-slate-200 bg-white hover:border-emerald-500 hover:shadow-md transition-all flex flex-col justify-between"
+            className="group p-5 rounded-xl border border-[#E2E8F0] bg-white hover:border-[#2563EB] hover:shadow-md transition-all flex flex-col justify-between"
           >
             <div className="space-y-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
+              <div className="h-10 w-10 rounded-lg bg-[#EAF2FF] text-[#2563EB] flex items-center justify-center font-bold group-hover:scale-105 transition-transform">
                 <Users className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900">Promotional Partner</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <h3 className="font-bold text-base text-[#172033]">Promotional Partner</h3>
+              <p className="text-xs text-[#64748B] leading-relaxed">
                 Join as an Independent Partner or Vendor-invited Team Member to promote verified campaigns and earn commissions.
               </p>
             </div>
-            <div className="pt-4 flex items-center text-xs font-semibold text-emerald-600 group-hover:underline">
+            <div className="pt-4 flex items-center text-xs font-semibold text-[#2563EB] group-hover:underline">
               <span>Continue as Partner</span>
               <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </div>
           </Link>
         </div>
 
-        <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+        <div className="pt-4 border-t border-[#E2E8F0] text-center text-xs text-[#64748B]">
           Already registered?{" "}
-          <Link href="/login" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/login" className="text-[#092B63] font-semibold hover:underline">
             Sign In here
           </Link>
         </div>
@@ -79,7 +80,7 @@ function RegisterChoice() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#64748B]">Loading...</div>}>
       <RegisterChoice />
     </Suspense>
   );

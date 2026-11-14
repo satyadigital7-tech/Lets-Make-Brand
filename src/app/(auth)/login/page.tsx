@@ -12,6 +12,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { loginSchema, LoginFormData } from "@/lib/security/validation";
 import { loginAction } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -50,10 +52,22 @@ function LoginForm() {
 
     setIsLoading(true);
     try {
-      const res = await loginAction(formData);
+      // 1. Primary: Direct standard REST API endpoint (never affected by Next.js static prerendering or Server Action ID mismatches)
+      let res: { success: boolean; error?: string; userId?: string } | null = null;
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        res = await response.json();
+      } catch {
+        // Fallback to Server Action if API route is unreachable
+        res = await loginAction(formData);
+      }
 
-      if (!res.success) {
-        setServerError(res.error || "Authentication failed.");
+      if (!res || !res.success) {
+        setServerError(res?.error || "Authentication failed.");
         setIsLoading(false);
         return;
       }
@@ -62,18 +76,22 @@ function LoginForm() {
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected authentication error occurred.";
-      setServerError(message);
+      const friendlyMessage =
+        message.toLowerCase().includes("failed to fetch")
+          ? "Could not reach authentication servers. Please check your internet connection and try again."
+          : message;
+      setServerError(friendlyMessage);
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="border-slate-200 shadow-md">
+    <Card className="border-[#E2E8F0] shadow-sm bg-white rounded-xl">
       <CardHeader className="space-y-1.5 pb-6">
-        <CardTitle className="text-2xl font-bold tracking-tight text-center">
+        <CardTitle className="text-2xl font-bold tracking-tight text-center text-[#172033]">
           Sign In to LMB
         </CardTitle>
-        <CardDescription className="text-center text-xs">
+        <CardDescription className="text-center text-xs text-[#64748B]">
           Enter your registered enterprise credentials to access your dashboard
         </CardDescription>
       </CardHeader>
@@ -115,7 +133,7 @@ function LoginForm() {
               <Label required htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-blue-600 hover:underline font-medium"
+                className="text-xs text-[#092B63] hover:underline font-medium"
               >
                 Forgot password?
               </Link>
@@ -138,9 +156,9 @@ function LoginForm() {
           </Button>
         </form>
 
-        <div className="pt-4 text-center border-t border-slate-100 text-xs text-slate-500">
+        <div className="pt-4 text-center border-t border-[#E2E8F0] text-xs text-[#64748B]">
           Do not have an account?{" "}
-          <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+          <Link href="/register" className="text-[#092B63] font-semibold hover:underline">
             Register / Join LMB
           </Link>
         </div>
@@ -151,9 +169,8 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading form...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[#64748B]">Loading form...</div>}>
       <LoginForm />
     </Suspense>
   );
 }
-

@@ -3,23 +3,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#092B63] focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-slate-900 text-white hover:bg-slate-800",
+          "border-transparent bg-[#092B63] text-white hover:bg-[#123D82]",
         secondary:
-          "border-transparent bg-slate-100 text-slate-900 hover:bg-slate-200",
+          "border-transparent bg-slate-100 text-slate-800 hover:bg-slate-200",
         brand:
-          "border-transparent bg-blue-100 text-blue-700 hover:bg-blue-200",
+          "border-transparent bg-[#EAF2FF] text-[#092B63] hover:bg-[#D5E5FF] font-bold",
         success:
-          "border-transparent bg-emerald-100 text-emerald-800 hover:bg-emerald-200",
+          "border-transparent bg-emerald-50 text-emerald-700 border-emerald-200",
         warning:
-          "border-transparent bg-amber-100 text-amber-800 hover:bg-amber-200",
+          "border-transparent bg-amber-50 text-amber-700 border-amber-200",
         destructive:
-          "border-transparent bg-rose-100 text-rose-800 hover:bg-rose-200",
-        outline: "text-slate-700 border-slate-300",
+          "border-transparent bg-red-50 text-red-700 border-red-200",
+        outline:
+          "text-[#172033] border-[#E2E8F0] bg-white",
       },
     },
     defaultVariants: {
@@ -39,4 +40,3 @@ function Badge({ className, variant, ...props }: BadgeProps) {
 }
 
 export { Badge, badgeVariants };
-

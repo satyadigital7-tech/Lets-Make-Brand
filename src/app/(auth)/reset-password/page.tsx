@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Lock, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +11,9 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 import { resetPasswordSchema, ResetPasswordFormData } from "@/lib/security/validation";
 
+export const dynamic = "force-dynamic";
+
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState<ResetPasswordFormData>({
     password: "",
     confirmPassword: "",
@@ -54,19 +54,23 @@ export default function ResetPasswordPage() {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Password update failed.";
-      setServerError(message);
+      setServerError(
+        message.toLowerCase().includes("failed to fetch")
+          ? "Could not reach authentication servers. Please verify your connection and try again."
+          : message
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="border-slate-200 shadow-md">
+    <Card className="border-[#E2E8F0] shadow-sm bg-white rounded-xl">
       <CardHeader className="space-y-1.5 pb-5">
-        <CardTitle className="text-2xl font-bold tracking-tight text-center">
+        <CardTitle className="text-2xl font-bold tracking-tight text-center text-[#172033]">
           Set New Password
         </CardTitle>
-        <CardDescription className="text-center text-xs">
+        <CardDescription className="text-center text-xs text-[#64748B]">
           Choose a secure password containing uppercase and numbers
         </CardDescription>
       </CardHeader>
@@ -74,18 +78,18 @@ export default function ResetPasswordPage() {
       <CardContent className="space-y-4">
         {isSuccess ? (
           <div className="py-4 text-center space-y-4">
-            <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+            <div className="h-12 w-12 rounded-full bg-emerald-50 text-[#16A34A] flex items-center justify-center mx-auto">
               <CheckCircle2 className="h-6 w-6" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-bold text-[#172033]">
               Password Updated Successfully
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
+            <p className="text-xs text-[#64748B] leading-relaxed max-w-sm mx-auto">
               Your new password has been stored securely. You can now access your account with the new credentials.
             </p>
             <div className="pt-2">
               <Link href="/login">
-                <Button size="sm" className="font-semibold">
+                <Button size="sm" className="font-semibold shadow-sm">
                   Sign In to Your Dashboard
                 </Button>
               </Link>
@@ -137,4 +141,3 @@ export default function ResetPasswordPage() {
     </Card>
   );
 }
-
