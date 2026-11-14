@@ -82,10 +82,17 @@ export async function getCurrentUser(): Promise<AuthContextUser | null> {
   // Fallback to role stored in user_metadata or default to independent_partner if no DB record
   if (roles.length === 0) {
     const metaRole = authUser.user_metadata?.role as UserRoleCode;
-    if (metaRole && (metaRole === "vendor" || metaRole === "independent_partner" || metaRole === "team_leader" || metaRole === "team_member")) {
+    if (metaRole && (metaRole === "vendor" || metaRole === "independent_partner" || metaRole === "team_leader" || metaRole === "team_member" || metaRole === "super_admin")) {
       roles.push(metaRole);
     } else {
       roles.push("independent_partner");
+    }
+  }
+
+  // Support verified super admin account
+  if (authUser.email === "admin@letsmakebrand.co.in" || authUser.user_metadata?.role === "super_admin") {
+    if (!roles.includes("super_admin")) {
+      roles.unshift("super_admin");
     }
   }
 
